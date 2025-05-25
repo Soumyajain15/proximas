@@ -1,3 +1,6 @@
+
+"use client"; // This layout now needs to be a client component for auth checks
+
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   SidebarProvider,
@@ -6,7 +9,10 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { PanelLeft } from "lucide-react";
+import { PanelLeft, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 
 export default function AppLayout({
@@ -14,9 +20,40 @@ export default function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-center p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-lg text-foreground font-semibold">Loading Your CareerCompass...</p>
+        <p className="text-sm text-muted-foreground">Please wait while we prepare your dashboard.</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    // This case should ideally be handled by the useEffect redirect,
+    // but as a fallback, prevent rendering the layout.
+    // You could also show a "Redirecting to login..." message here.
+    return (
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background text-center p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-lg text-foreground font-semibold">Redirecting to login...</p>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
+      <AppSidebar /> {/* AppSidebar will have logout button */}
       <SidebarInset className="bg-background">
           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 lg:hidden">
             <SidebarTrigger asChild>
