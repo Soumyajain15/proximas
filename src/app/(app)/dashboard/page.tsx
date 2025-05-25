@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save } from "lucide-react";
+import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,14 +20,14 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardProps) {
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card hover:bg-card/95">
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
         <div className="p-3 rounded-full bg-primary/10 text-primary">
           <Icon className="h-6 w-6" />
         </div>
         <div>
-          <CardTitle className="text-xl">{title}</CardTitle>
-          <CardDescription className="text-sm mt-1">{description}</CardDescription>
+          <CardTitle className="text-xl text-foreground">{title}</CardTitle>
+          <CardDescription className="text-sm mt-1 text-muted-foreground">{description}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
@@ -35,7 +35,7 @@ function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardP
       </CardContent>
       <CardFooter>
         <Link href={link} className="w-full">
-          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/5 hover:text-primary">
+          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10 hover:text-primary">
             {cta} <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </Link>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
     },
     {
       title: "Resume Builder",
-      description: "Generate professional, ATS-friendly resumes tailored to your target roles.",
+      description: "Generate professional resumes tailored to your target roles.",
       icon: FileText,
       link: "/resume-builder",
       cta: "Build Resume"
@@ -101,23 +101,37 @@ export default function DashboardPage() {
     },
     {
       title: "Improvement Tracking",
-      description: "Track your progress and view personalized improvement plans.",
+      description: "Track progress and view personalized improvement plans.",
       icon: BarChart3,
       link: "/improvement-tracking",
       cta: "Track Progress"
     },
+    {
+      title: "AI Chatbot",
+      description: "Get instant answers and guidance from your virtual career assistant.",
+      icon: Bot,
+      link: "/ai-chatbot",
+      cta: "Chat with AI"
+    },
+    {
+      title: "FAQ",
+      description: "Find answers to common questions about CareerCompass AI.",
+      icon: HelpCircle,
+      link: "/faq",
+      cta: "View FAQs"
+    },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <PageHeader
-        title="Welcome to Your Dashboard"
-        description="Navigate your career journey with AI-powered tools and insights. Select a feature below to get started."
+        title="Welcome to Your Career Dashboard"
+        description="Navigate your career journey with AI-powered tools and insights. Select a feature below or define your goals to get started."
         icon={LayoutDashboard}
       />
       
       <section>
-        <h2 className="text-2xl font-semibold text-foreground mb-6">AI-Powered Tools</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-6 pb-2 border-b border-border">AI-Powered Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
@@ -125,24 +139,35 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-12 p-6 bg-card rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-foreground mb-3">Your Career Goals</h2>
-        <p className="text-muted-foreground mb-4">
-          Define your aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career?
-        </p>
-        <textarea
-          placeholder="E.g., Transition to a data science role, achieve a leadership position in tech, find a remote job with work-life balance..."
-          className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[100px] text-sm"
-          value={careerGoals}
-          onChange={handleGoalsChange}
-          aria-label="Career goals input"
-        />
-        <Button 
-          className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90"
-          onClick={handleSaveGoals}
-        >
-          <Save className="mr-2 h-4 w-4" /> Save Goals
-        </Button>
+      <section className="mt-10">
+         <Card className="shadow-lg bg-secondary/20 border-secondary">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl text-foreground">
+              <Target className="mr-3 h-7 w-7 text-primary" />
+              Your Career Goals
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Define your aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <textarea
+              placeholder="E.g., Transition to a data science role, achieve a leadership position in tech, find a remote job with work-life balance..."
+              className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[100px] text-sm"
+              value={careerGoals}
+              onChange={handleGoalsChange}
+              aria-label="Career goals input"
+            />
+          </CardContent>
+          <CardFooter>
+            <Button 
+              className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-shadow"
+              onClick={handleSaveGoals}
+            >
+              <Save className="mr-2 h-4 w-4" /> Save Goals
+            </Button>
+          </CardFooter>
+        </Card>
       </section>
     </div>
   );
