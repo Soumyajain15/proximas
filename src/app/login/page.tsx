@@ -38,9 +38,18 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  // --- Hardcoded credentials for testing ---
+  // IMPORTANT: Remove these for production!
+  const defaultTestEmail = "test@example.com";
+  const defaultTestPassword = "password123";
+  // --- End of hardcoded credentials ---
+
   const loginForm = useForm<LoginFormDataType>({
     resolver: zodResolver(loginFormSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { 
+      email: defaultTestEmail, // Pre-fill email for testing
+      password: defaultTestPassword, // Pre-fill password for testing
+    },
   });
 
   const forgotPasswordForm = useForm<ForgotPasswordFormDataType>({
@@ -116,7 +125,7 @@ export default function LoginPage() {
             <Compass className="h-16 w-16 text-primary" />
           </div>
           <CardTitle className="text-3xl font-bold text-primary">Welcome Back!</CardTitle>
-          <CardDescription>Log in to access your CareerCompass AI dashboard.</CardDescription>
+          <CardDescription>Log in to access your CareerCompass AI dashboard. (Test: {defaultTestEmail} / {defaultTestPassword})</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...loginForm}>
