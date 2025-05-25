@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 const signupFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -21,7 +22,7 @@ const signupFormSchema = z.object({
   confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters." }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords do not match.",
-  path: ["confirmPassword"], // path to field that gets the error
+  path: ["confirmPassword"], 
 });
 
 type SignupFormValues = z.infer<typeof signupFormSchema>;
@@ -29,6 +30,7 @@ type SignupFormValues = z.infer<typeof signupFormSchema>;
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { signup, isFirebaseReady } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignupFormValues>({
@@ -41,18 +43,28 @@ export default function SignupPage() {
   });
 
   const onSubmit: SubmitHandler<SignupFormValues> = async (data) => {
+    if (!isFirebaseReady) {
+      toast({ title: "System Error", description: "Authentication system is not ready. Please try again shortly.", variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Signup data:", data);
-    // Placeholder for actual signup logic
-    // Since auth is removed, we'll just simulate success and redirect
-    toast({
-      title: "Signup Attempted (Placeholder)",
-      description: "Actual signup functionality is not connected.",
-    });
-    // router.push("/login"); // No actual auth, so just simulate
-    setIsLoading(false);
+    try {
+      await signup(data.email, data.password);
+      toast({ title: "Signup Successful!", description: "Welcome to CareerCompass AI. Please log in." });
+      router.push("/login"); 
+    } catch (error: any) {
+      const errorCode = error.code;
+      let errorMessage = error.message;
+      if (errorCode === 'auth/email-already-in-use') {
+        errorMessage = "This email address is already in use. Please try logging in or use a different email.";
+      } else if (errorCode) {
+        errorMessage = `Signup failed: ${errorCode}. Please try again.`;
+      }
+      toast({ title: "Signup Failed", description: errorMessage, variant: "destructive" });
+      console.error("Signup error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -88,7 +100,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input type="password" placeholder="•••••••• (min. 6 characters)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -107,7 +119,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading || !isFirebaseReady}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                 Sign Up
               </Button>

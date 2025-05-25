@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Added useRouter
 import {
   Sidebar,
   SidebarHeader,
@@ -11,8 +11,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"; // Removed SidebarTrigger as it's handled in AppLayout
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -24,12 +23,15 @@ import {
   TrendingUp,
   BarChart3,
   Github,
-  PanelLeft,
   HelpCircle,
-  Bot, // Added Bot icon
+  Bot, 
+  LogOut, // Added LogOut icon
+  Users, // Added Users icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/auth-context"; // Added useAuth
+import { useToast } from "@/hooks/use-toast"; // Added useToast
 
 
 const navItems = [
@@ -39,13 +41,29 @@ const navItems = [
   { href: "/resume-builder", icon: FileText, label: "Resume Builder" },
   { href: "/market-trends", icon: TrendingUp, label: "Market Trends" },
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
-  { href: "/ai-chatbot", icon: Bot, label: "AI Chatbot" }, // Added AI Chatbot
+  { href: "/ai-chatbot", icon: Bot, label: "AI Chatbot" },
   { href: "/faq", icon: HelpCircle, label: "FAQ" },
+  // { href: "/community-forum", icon: Users, label: "Community Forum" }, // Community forum removed
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { open, isMobile, toggleSidebar } = useSidebar();
+  const { open, isMobile } = useSidebar();
+  const { logout, user, isFirebaseReady } = useAuth(); // Added useAuth
+  const router = useRouter();
+  const { toast } = useToast();
+
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({ title: "Logged Out", description: "You have been successfully logged out." });
+      router.push("/login");
+    } catch (error) {
+      toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -61,12 +79,7 @@ export function AppSidebar() {
             CareerCompass
           </span>
         </Link>
-        {isMobile && (
-           <Button variant="ghost" size="icon" className="ml-auto lg:hidden" onClick={toggleSidebar}>
-            <PanelLeft className="h-6 w-6" />
-            <span className="sr-only">Toggle Sidebar</span>
-          </Button>
-        )}
+        {/* SidebarTrigger is now in AppLayout for mobile */}
       </SidebarHeader>
       <SidebarContent asChild>
         <ScrollArea className="flex-1">
@@ -98,6 +111,16 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
+        {user && isFirebaseReady && (
+           <Button 
+            variant="ghost" 
+            onClick={handleLogout}
+            className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center")}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>Logout</span>
+          </Button>
+        )}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />
