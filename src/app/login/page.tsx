@@ -34,21 +34,18 @@ export default function LoginPage() {
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] = useState(false);
 
-  const { login, user, loading: authLoading, sendPasswordReset } = useAuth();
+  const { login, user, loading: authLoading, sendPasswordReset, firebaseAuthInstance } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
-  // --- Hardcoded credentials for testing ---
-  // IMPORTANT: Remove these for production!
   const defaultTestEmail = "test@example.com";
   const defaultTestPassword = "password123";
-  // --- End of hardcoded credentials ---
 
   const loginForm = useForm<LoginFormDataType>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: { 
-      email: defaultTestEmail, // Pre-fill email for testing
-      password: defaultTestPassword, // Pre-fill password for testing
+      email: defaultTestEmail,
+      password: defaultTestPassword,
     },
   });
 
@@ -65,18 +62,32 @@ export default function LoginPage() {
 
   const onLoginSubmit: SubmitHandler<LoginFormDataType> = async (data) => {
     setIsLoggingIn(true);
+    if (!firebaseAuthInstance) {
+      toast({
+        title: "Login System Error",
+        description: "Firebase is not properly configured. Please contact support or check application setup.",
+        variant: "destructive",
+      });
+      setIsLoggingIn(false);
+      return;
+    }
     try {
       await login(data.email, data.password);
       toast({ title: "Login Successful!", description: "Welcome back." });
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
-      const errorMessage = error.code 
-        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`
-        : error.message || "An unexpected error occurred. Please try again.";
+      let title = "Login Failed";
+      let description = "An unexpected error occurred. Please try again.";
+      if (error.code) { // Likely a Firebase error
+        title = "Login Error";
+        description = `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`;
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
-        title: "Login Failed",
-        description: errorMessage,
+        title: title,
+        description: description,
         variant: "destructive",
       });
     } finally {
@@ -86,22 +97,36 @@ export default function LoginPage() {
 
   const onForgotPasswordSubmit: SubmitHandler<ForgotPasswordFormDataType> = async (data) => {
     setIsSendingReset(true);
+    if (!firebaseAuthInstance) {
+      toast({
+        title: "Password Reset Error",
+        description: "Firebase is not properly configured. Cannot send reset email.",
+        variant: "destructive",
+      });
+      setIsSendingReset(false);
+      return;
+    }
     try {
       await sendPasswordReset(data.resetEmail);
       toast({
         title: "Password Reset Email Sent",
         description: "If an account exists for this email, a reset link has been sent. Please check your inbox (and spam folder).",
       });
-      setForgotPasswordDialogOpen(false); // Close dialog on success
-      forgotPasswordForm.reset(); // Reset the forgot password form
+      setForgotPasswordDialogOpen(false); 
+      forgotPasswordForm.reset(); 
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      const errorMessage = error.code
-        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`
-        : error.message || "Failed to send password reset email. Please try again.";
+      let title = "Reset Failed";
+      let description = "Failed to send password reset email. Please try again.";
+       if (error.code) { // Likely a Firebase error
+        title = "Password Reset Error";
+        description = `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`;
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
-        title: "Reset Failed",
-        description: errorMessage,
+        title: title,
+        description: description,
         variant: "destructive",
       });
     } finally {

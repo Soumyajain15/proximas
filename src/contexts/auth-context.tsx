@@ -3,14 +3,15 @@
 
 import type { User as FirebaseUser, AuthError } from "firebase/auth";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { auth as firebaseAuthInstance } from "@/lib/firebase";
+import { auth as firebaseAuthInstanceFromLib } from "@/lib/firebase"; // Renamed import
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut,
-  sendPasswordResetEmail as firebaseSendPasswordResetEmail, // Import sendPasswordResetEmail
-  type UserCredential
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  type UserCredential,
+  type Auth as FirebaseAuth // Import Auth type
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +21,8 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<UserCredential>;
   signup: (email: string, pass: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
-  sendPasswordReset: (email: string) => Promise<void>; // Add new function type
+  sendPasswordReset: (email: string) => Promise<void>;
+  firebaseAuthInstance: FirebaseAuth | undefined; // Expose the auth instance
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,6 +30,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  // Use the imported auth instance directly
+  const firebaseAuthInstance = firebaseAuthInstanceFromLib;
   const router = useRouter();
 
   useEffect(() => {
@@ -41,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [firebaseAuthInstance]); // Add firebaseAuthInstance to dependency array
 
   const login = (email: string, pass: string): Promise<UserCredential> => {
     if (!firebaseAuthInstance) {
@@ -69,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null); 
     } catch (error) {
       console.error("Error during Firebase sign out:", error);
-      setUser(null);
+      setUser(null); // Ensure user is cleared even if signout fails remotely
     } finally {
       router.push('/login'); 
     }
@@ -88,7 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     signup,
     logout,
-    sendPasswordReset, // Add to context value
+    sendPasswordReset,
+    firebaseAuthInstance, // Provide the instance
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

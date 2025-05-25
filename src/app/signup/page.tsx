@@ -29,7 +29,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signup, user, loading: authLoading } = useAuth();
+  const { signup, user, loading: authLoading, firebaseAuthInstance } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -46,18 +46,32 @@ export default function SignupPage() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsLoading(true);
+    if (!firebaseAuthInstance) {
+      toast({
+        title: "Signup System Error",
+        description: "Firebase is not properly configured. Please contact support or check application setup.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
     try {
       await signup(data.email, data.password);
       toast({ title: "Signup Successful!", description: "Welcome to CareerCompass AI." });
       router.push("/dashboard"); 
     } catch (error: any) {
       console.error("Signup error:", error);
-      const errorMessage = error.code 
-        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})` 
-        : error.message || "An unexpected error occurred. Please try again.";
+      let title = "Signup Failed";
+      let description = "An unexpected error occurred. Please try again.";
+      if (error.code) { // Likely a Firebase error
+        title = "Signup Error";
+        description = `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`;
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
-        title: "Signup Failed",
-        description: errorMessage,
+        title: title,
+        description: description,
         variant: "destructive",
       });
     } finally {
