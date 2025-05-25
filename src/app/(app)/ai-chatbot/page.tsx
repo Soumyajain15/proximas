@@ -1,10 +1,18 @@
 
 "use client";
 
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, HelpCircle, MessageSquare, FileText, Navigation, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bot, HelpCircle, MessageSquare, FileText, Navigation, BookOpen, User, Send, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { chatWithAI, type ChatInput, type ChatOutput } from "@/ai/flows/ai-conversational-chat";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface Capability {
   title: string;
@@ -40,7 +48,94 @@ const capabilities: Capability[] = [
   },
 ];
 
+interface Message {
+  id: string;
+  role: "user" | "ai";
+  content: string;
+}
+
+type GenkitHistoryMessage = {
+  role: "user" | "model";
+  parts: { text: string }[];
+};
+
+
 export default function AIChatbotPage() {
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 'initial-ai-greeting', role: 'ai', content: "Hello! I'm CareerCompass AI. How can I help you with your career journey today?" }
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessageContent = inputValue.trim();
+    const newUserMessage: Message = {
+      id: Date.now().toString() + "-user",
+      role: "user",
+      content: userMessageContent,
+    };
+    
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setInputValue("");
+    setIsLoading(true);
+
+    const genkitHistory: GenkitHistoryMessage[] = messages
+      .filter(msg => msg.id !== 'initial-ai-greeting') // Exclude initial greeting from history sent to AI
+      .map(msg => ({
+        role: msg.role === 'ai' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+      }));
+    
+    // Add the current user message to the history being sent if it's not the only message
+    // (initial state already has AI greeting)
+    if (genkitHistory.length > 0 || messages.length > 1) {
+       // genkitHistory.push({role: 'user', parts: [{text: userMessageContent}]});
+       // The userMessageContent is passed as `userInput` to the flow, no need to add to history array being passed
+    }
+
+
+    try {
+      const aiInput: ChatInput = {
+        userInput: userMessageContent,
+        history: genkitHistory,
+      };
+      const result: ChatOutput = await chatWithAI(aiInput);
+      const newAiMessage: Message = {
+        id: Date.now().toString() + "-ai",
+        role: "ai",
+        content: result.aiResponse,
+      };
+      setMessages((prevMessages) => [...prevMessages, newAiMessage]);
+    } catch (error: any) {
+      console.error("Error calling AI chat flow:", error);
+      const errorMessage = error instanceof Error ? error.message : "Could not get a response from the AI. Please try again.";
+      toast({
+        title: "Chatbot Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+       // Remove the optimistically added user message on error
+       setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== newUserMessage.id));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -49,11 +144,94 @@ export default function AIChatbotPage() {
         icon={Bot}
       />
 
+      <Card className="shadow-lg mt-8 flex flex-col h-[calc(100vh-280px)] min-h-[500px] max-h-[700px]">
+        <CardHeader className="shrink-0">
+          <CardTitle>Interact with CareerCompass AI</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-grow flex flex-col p-0 overflow-hidden">
+          <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
+            <div className="space-y-4 pr-2"> {/* Added pr-2 for scrollbar spacing */}
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex items-end gap-2 w-full",
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  )}
+                >
+                  {message.role === "ai" && (
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        <Bot size={18} />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div
+                    className={cn(
+                      "max-w-[75%] rounded-lg p-3 text-sm shadow-md break-words",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card border" // Use card and border for AI for better theme adapt
+                    )}
+                  >
+                    {/* Preserve newlines in AI responses */}
+                    {message.content.split('\n').map((line, i, arr) => (
+                      <span key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </div>
+                  {message.role === "user" && (
+                     <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarFallback className="bg-accent text-accent-foreground">
+                        <User size={18} />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              ))}
+               {isLoading && (
+                <div className="flex items-end gap-2 justify-start w-full">
+                   <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        <Bot size={18} />
+                      </AvatarFallback>
+                    </Avatar>
+                  <div className="max-w-[75%] rounded-lg p-3 text-sm shadow-md bg-card border">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} /> {/* Anchor for scrolling */}
+            </div>
+          </ScrollArea>
+          <div className="p-4 border-t shrink-0">
+            <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <Input
+                type="text"
+                placeholder="Ask about careers, skills, or get advice..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="flex-grow"
+                disabled={isLoading}
+                aria-label="Chat input"
+              />
+              <Button type="submit" disabled={isLoading || !inputValue.trim()} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                <span className="sr-only">Send</span>
+              </Button>
+            </form>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Capabilities section moved below the chat for better focus */}
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Key Capabilities</CardTitle>
+          <CardTitle>Key Capabilities (Reference)</CardTitle>
           <CardDescription>
-            Built with natural language processing (NLP), the chatbot ensures seamless, human-like interaction, offering a smart and responsive user experience to make career development more accessible and efficient.
+            The AI is designed to help with areas like these. Built with natural language processing (NLP), the chatbot ensures seamless, human-like interaction, offering a smart and responsive user experience to make career development more accessible and efficient.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -75,19 +253,6 @@ export default function AIChatbotPage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg mt-8">
-        <CardHeader>
-          <CardTitle>Interact with the Chatbot (Coming Soon)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            A dedicated chat interface will be available here soon, allowing you to directly interact with the AI Career Assistant.
-          </p>
-          <div className="h-64 w-full bg-muted rounded-md flex items-center justify-center text-muted-foreground/70">
-            Chat Interface Placeholder
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
