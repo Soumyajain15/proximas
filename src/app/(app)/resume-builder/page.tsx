@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,8 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { FileText, Loader2, Sparkles, ClipboardCopy } from "lucide-react";
+import { FileText, Loader2, Sparkles, ClipboardCopy, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const formSchema = z.object({
   jobDescription: z.string().min(50, "Job description should be at least 50 characters."),
@@ -27,6 +32,7 @@ export default function ResumeBuilderPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerateResumeOutput | null>(null);
   const { toast } = useToast();
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -65,15 +71,52 @@ export default function ResumeBuilderPage() {
   };
 
   const handleCopyToClipboard = () => {
-    if (result?.resumeContent) {
-      navigator.clipboard.writeText(result.resumeContent)
+    if (result?.resumeContentMarkdown) {
+      navigator.clipboard.writeText(result.resumeContentMarkdown)
         .then(() => {
-          toast({ title: "Copied to clipboard!", description: "Resume content has been copied." });
+          toast({ title: "Copied to clipboard!", description: "Resume Markdown content has been copied." });
         })
         .catch(err => {
           toast({ title: "Copy Failed", description: "Could not copy content to clipboard.", variant: "destructive" });
           console.error('Failed to copy: ', err);
         });
+    }
+  };
+
+  const handleExportToPDF = () => {
+    if (previewRef.current && result?.resumeContentMarkdown) {
+      toast({ title: "Exporting PDF...", description: "Please wait a moment."});
+      html2canvas(previewRef.current, { 
+        scale: 2, // Improves quality
+        logging: false, // Suppress html2canvas logs in console
+        useCORS: true // If your markdown includes external images
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'pt',
+          format: 'a4',
+        });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        // Calculate the ratio to fit the image within the PDF page dimensions
+        const ratio = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
+        
+        const imgX = (pdfWidth - canvasWidth * ratio) / 2; // Center the image
+        const imgY = 0; // Align to top
+        
+        pdf.addImage(imgData, 'PNG', imgX, imgY, canvasWidth * ratio, canvasHeight * ratio);
+        pdf.save('resume.pdf');
+        toast({ title: "Resume Exported!", description: "Your resume has been saved as resume.pdf." });
+      }).catch(err => {
+        toast({ title: "PDF Export Failed", description: "Could not export resume to PDF. Check console for details.", variant: "destructive" });
+        console.error('Failed to export PDF: ', err);
+      });
+    } else {
+       toast({ title: "Nothing to Export", description: "Please generate a resume first.", variant: "destructive" });
     }
   };
 
@@ -172,21 +215,34 @@ export default function ResumeBuilderPage() {
         </Card>
       )}
 
-      {result && (
+      {result && result.resumeContentMarkdown && (
         <Card className="shadow-lg mt-8 bg-gradient-to-br from-primary/5 to-secondary/5">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-2xl text-primary">
+            <CardTitle className="flex items-center gap-2 text-xl text-primary">
               <FileText className="h-6 w-6" />
-              Generated Resume Content
+              Live Preview & Actions
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={handleCopyToClipboard}>
-              <ClipboardCopy className="mr-2 h-4 w-4" />
-              Copy to Clipboard
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleCopyToClipboard} disabled={!result?.resumeContentMarkdown}>
+                <ClipboardCopy className="mr-2 h-4 w-4" />
+                Copy Markdown
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExportToPDF} disabled={!result?.resumeContentMarkdown || isLoading} className="bg-primary/10 text-primary hover:bg-primary/20">
+                <Download className="mr-2 h-4 w-4" />
+                Export to PDF
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none dark:prose-invert rounded-md border border-border bg-background/50 p-4 whitespace-pre-wrap min-h-[300px]">
-              {result.resumeContent}
+            <div 
+              id="resume-preview-content" 
+              ref={previewRef} 
+              className="prose prose-sm dark:prose-invert max-w-full p-4 border border-border bg-background/70 rounded-md shadow-inner min-h-[300px] overflow-y-auto lg:min-h-[500px]"
+              style={{ lineHeight: '1.6' }} // Added for better readability
+            >
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {result.resumeContentMarkdown}
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>
