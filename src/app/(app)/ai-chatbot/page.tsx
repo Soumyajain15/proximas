@@ -116,10 +116,11 @@ export default function AIChatbotPage() {
         history: genkitHistory,
       };
       const result: ChatOutput = await chatWithAI(aiInput);
+      const cleanedAiResponse = result.aiResponse.replace(/\*/g, ''); // Remove all asterisks
       const newAiMessage: Message = {
         id: Date.now().toString() + "-ai",
         role: "ai",
-        content: result.aiResponse,
+        content: cleanedAiResponse,
       };
       setMessages((prevMessages) => [...prevMessages, newAiMessage]);
     } catch (error: any) {
