@@ -27,22 +27,13 @@ let authInstance: Auth | undefined = undefined;
 const isPlaceholder = (value: string | undefined, name: string) => {
   if (!value) {
     if (typeof window !== 'undefined') {
-      console.warn(
-        `Firebase config value ${name} (e.g., ${name.toUpperCase()}) is NOT DEFINED. ` +
-        "Please ensure it is set in your .env or .env.local file (prefixed with NEXT_PUBLIC_), " +
-        "that the values are correct, and that you have RESTARTED your development server."
-      );
+      // This specific warning is deferred to the essentialConfigValid check block
     }
     return true;
   }
-  if (value.startsWith("YOUR_") || value.includes("YOUR_ACTUAL_") || value.includes("XXXXX")) {
+  if (value.startsWith("YOUR_") || value.includes("YOUR_ACTUAL_") || value.includes("XXXXX") || value.trim() === "") {
     if (typeof window !== 'undefined') {
-      console.warn(
-        `Firebase config value ${name} (e.g., ${name.toUpperCase()}) appears to be a PLACEHOLDER string: "${value}". ` +
-        "Please replace it in your .env or .env.local file with your actual Firebase value. " +
-        "Ensure all other NEXT_PUBLIC_FIREBASE_ variables are also correctly set with real values. " +
-        "Then, RESTART your development server."
-      );
+      // This specific warning is deferred to the essentialConfigValid check block
     }
     return true;
   }
@@ -71,21 +62,20 @@ if (!getApps().length) {
         "Please check your .env or .env.local file and ensure all NEXT_PUBLIC_FIREBASE_ variables are correctly set and RESTART your server."
       );
     }
+    // app and authInstance remain undefined
   }
 } else {
   app = getApps()[0];
-  // Potentially, re-check config validity if app was already initialized (e.g. HMR)
-  // For simplicity, we assume if getApps().length > 0, it was initialized correctly before.
-  // However, if config changes via HMR (not typical for .env files), this could be an edge case.
   if (essentialConfigValid) {
      authInstance = getAuth(app);
   } else {
      if (typeof window !== 'undefined') {
-        console.warn("Firebase was previously initialized, but current config appears invalid. Auth may not work correctly.");
+        console.warn(
+          "Firebase was previously initialized, but current config appears invalid. Auth may not work correctly. " +
+          "Forcing authInstance to undefined. Please check .env variables and RESTART your server."
+        );
      }
-     // authInstance might be from a previous valid init, or could become problematic.
-     // To be safe, if config is now invalid, we might want to clear authInstance
-     // authInstance = undefined; // Or handle this state more explicitly
+     authInstance = undefined; // Explicitly set to undefined if config is now invalid
   }
  
 }
