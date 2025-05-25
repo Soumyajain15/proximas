@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -49,9 +49,12 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
+      const errorMessage = error.code 
+        ? `Error ${error.code}: ${error.message}` 
+        : error.message || "An unexpected error occurred. Please try again.";
       toast({
         title: "Login Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -134,6 +137,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-// Need to import useEffect from react
-import { useEffect } from 'react';

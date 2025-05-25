@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -52,9 +52,12 @@ export default function SignupPage() {
       router.push("/dashboard"); // Redirect to dashboard after successful signup
     } catch (error: any) {
       console.error("Signup error:", error);
+      const errorMessage = error.code 
+        ? `Error ${error.code}: ${error.message}` 
+        : error.message || "An unexpected error occurred. Please try again.";
       toast({
         title: "Signup Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -150,6 +153,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-// Need to import useEffect from react
-import { useEffect } from 'react';
