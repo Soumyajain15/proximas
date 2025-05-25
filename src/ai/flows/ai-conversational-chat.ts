@@ -22,16 +22,18 @@ const HistoryMessageSchema = z.object({
   parts: z.array(MessagePartSchema),
 });
 
-export const ChatInputSchema = z.object({
+// Internal Zod schema - not exported
+const ChatInputSchemaInternal = z.object({
   userInput: z.string().describe('The latest message from the user.'),
   history: z.array(HistoryMessageSchema).optional().describe('The conversation history up to this point.'),
 });
-export type ChatInput = z.infer<typeof ChatInputSchema>;
+export type ChatInput = z.infer<typeof ChatInputSchemaInternal>;
 
-export const ChatOutputSchema = z.object({
+// Internal Zod schema - not exported
+const ChatOutputSchemaInternal = z.object({
   aiResponse: z.string().describe('The AI\'s response to the user.'),
 });
-export type ChatOutput = z.infer<typeof ChatOutputSchema>;
+export type ChatOutput = z.infer<typeof ChatOutputSchemaInternal>;
 
 export async function chatWithAI(input: ChatInput): Promise<ChatOutput> {
   return conversationalChatFlow(input);
@@ -40,8 +42,8 @@ export async function chatWithAI(input: ChatInput): Promise<ChatOutput> {
 const conversationalChatFlow = ai.defineFlow(
   {
     name: 'conversationalChatFlow',
-    inputSchema: ChatInputSchema,
-    outputSchema: ChatOutputSchema,
+    inputSchema: ChatInputSchemaInternal,
+    outputSchema: ChatOutputSchemaInternal,
   },
   async (input) => {
     const { userInput, history } = input;
@@ -96,3 +98,4 @@ const conversationalChatFlow = ai.defineFlow(
     return { aiResponse: aiResponseText };
   }
 );
+

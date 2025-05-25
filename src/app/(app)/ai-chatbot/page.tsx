@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, HelpCircle, MessageSquare, FileText, Navigation, BookOpen, User, Send, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+// Import only the types and the async function
 import { chatWithAI, type ChatInput, type ChatOutput } from "@/ai/flows/ai-conversational-chat";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -175,7 +176,7 @@ export default function AIChatbotPage() {
                     )}
                   >
                     {/* Preserve newlines in AI responses */}
-                    {message.content.split('\n').map((line, i, arr) => (
+                    {message.content.split('\\n').map((line, i, arr) => (
                       <span key={i}>
                         {line}
                         {i < arr.length - 1 && <br />}
