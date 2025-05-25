@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { Label } from "@/components/ui/label";
 
 const placeholderImprovementData = {
   overallProgress: 65,
@@ -131,3 +132,4 @@ export default function ImprovementTrackingPage() {
 //     {children}
 //   </label>
 // );
+
