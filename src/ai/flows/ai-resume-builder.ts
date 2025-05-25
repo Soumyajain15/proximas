@@ -1,4 +1,4 @@
-// use server'
+'use server';
 
 /**
  * @fileOverview A resume builder AI agent.
