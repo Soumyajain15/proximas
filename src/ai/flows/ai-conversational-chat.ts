@@ -55,16 +55,12 @@ const conversationalChatFlow = ai.defineFlow(
     Keep your responses helpful and to the point, but feel free to elaborate if the user asks for more details.
     You can ask clarifying questions if the user's query is ambiguous.`;
 
-    const messagesForAI = [];
-
-    if (history && history.length > 0) {
-      messagesForAI.push(...history);
-    }
-
-    messagesForAI.push({ role: 'user', parts: [{ text: userInput }] });
+    // The 'history' array is already in the correct format for the `history` parameter of ai.generate().
+    // The 'userInput' string is for the `prompt` parameter.
 
     const response = await ai.generate({
-      prompt: messagesForAI,
+      prompt: userInput, // Pass the current user's text input directly
+      history: history,  // Pass the conversation history array
       system: systemInstruction,
       config: {
         temperature: 0.6, // Slightly lower temperature for more focused career advice
