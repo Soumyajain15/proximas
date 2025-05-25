@@ -3,12 +3,13 @@
 
 import type { User as FirebaseUser, AuthError } from "firebase/auth";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { auth as firebaseAuthInstance } from "@/lib/firebase"; // Renamed import
+import { auth as firebaseAuthInstance } from "@/lib/firebase";
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail, // Import sendPasswordResetEmail
   type UserCredential
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<UserCredential>;
   signup: (email: string, pass: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>; // Add new function type
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,8 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!firebaseAuthInstance) {
-      console.error("Firebase Auth instance is not available in AuthProvider. Authentication will not work. Please check Firebase configuration.");
-      setLoading(false); // Stop loading, user will remain null
+      console.error("Firebase Auth instance is not available in AuthProvider. Authentication will not work. Please check Firebase configuration in .env file and restart your server.");
+      setLoading(false); 
       return;
     }
     const unsubscribe = onAuthStateChanged(firebaseAuthInstance, (currentUser) => {
@@ -58,20 +60,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async (): Promise<void> => {
     if (!firebaseAuthInstance) {
       console.warn("Firebase Auth is not initialized. Logging out locally.");
-      setUser(null); // Clear user state locally
-      router.push('/login'); // Redirect to login
-      return Promise.resolve(); // Or reject, depending on desired behavior
+      setUser(null); 
+      router.push('/login'); 
+      return Promise.resolve();
     }
     try {
       await firebaseSignOut(firebaseAuthInstance);
-      setUser(null); // Ensure user state is cleared
+      setUser(null); 
     } catch (error) {
       console.error("Error during Firebase sign out:", error);
-      // Still clear user state locally and redirect
       setUser(null);
     } finally {
-      router.push('/login'); // Redirect to login after logout attempt
+      router.push('/login'); 
     }
+  };
+
+  const sendPasswordReset = (email: string): Promise<void> => {
+    if (!firebaseAuthInstance) {
+      return Promise.reject(new Error("Firebase Auth is not initialized. Cannot send password reset email."));
+    }
+    return firebaseSendPasswordResetEmail(firebaseAuthInstance, email);
   };
 
   const value = {
@@ -80,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     signup,
     logout,
+    sendPasswordReset, // Add to context value
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

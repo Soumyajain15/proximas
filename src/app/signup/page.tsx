@@ -22,7 +22,7 @@ const formSchema = z.object({
   confirmPassword: z.string().min(6, "Password must be at least 6 characters."),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"], // path of error
+  path: ["confirmPassword"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -49,11 +49,11 @@ export default function SignupPage() {
     try {
       await signup(data.email, data.password);
       toast({ title: "Signup Successful!", description: "Welcome to CareerCompass AI." });
-      router.push("/dashboard"); // Redirect to dashboard after successful signup
+      router.push("/dashboard"); 
     } catch (error: any) {
       console.error("Signup error:", error);
       const errorMessage = error.code 
-        ? `Error ${error.code}: ${error.message}` 
+        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})` 
         : error.message || "An unexpected error occurred. Please try again.";
       toast({
         title: "Signup Failed",

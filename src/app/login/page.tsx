@@ -13,25 +13,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogIn, Loader2, Compass } from "lucide-react";
+import { LogIn, Loader2, Compass, KeyRound, Mail } from "lucide-react";
 
-const formSchema = z.object({
+const loginFormSchema = z.object({
   email: z.string().email("Invalid email address."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
+  password: z.string().min(1, "Password is required."), // Min 1 to allow submit, Firebase handles length
 });
 
-type FormData = z.infer<typeof formSchema>;
+type LoginFormDataType = z.infer<typeof loginFormSchema>;
+
+const forgotPasswordFormSchema = z.object({
+  resetEmail: z.string().email("Please enter a valid email address."),
+});
+type ForgotPasswordFormDataType = z.infer<typeof forgotPasswordFormSchema>;
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { login, user, loading: authLoading } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] = useState(false);
+
+  const { login, user, loading: authLoading, sendPasswordReset } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const loginForm = useForm<LoginFormDataType>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: { email: "", password: "" },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormDataType>({
+    resolver: zodResolver(forgotPasswordFormSchema),
+    defaultValues: { resetEmail: "" },
   });
 
   useEffect(() => {
@@ -40,9 +54,8 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
-
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    setIsLoading(true);
+  const onLoginSubmit: SubmitHandler<LoginFormDataType> = async (data) => {
+    setIsLoggingIn(true);
     try {
       await login(data.email, data.password);
       toast({ title: "Login Successful!", description: "Welcome back." });
@@ -50,7 +63,7 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error("Login error:", error);
       const errorMessage = error.code 
-        ? `Error ${error.code}: ${error.message}` 
+        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`
         : error.message || "An unexpected error occurred. Please try again.";
       toast({
         title: "Login Failed",
@@ -58,7 +71,32 @@ export default function LoginPage() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoggingIn(false);
+    }
+  };
+
+  const onForgotPasswordSubmit: SubmitHandler<ForgotPasswordFormDataType> = async (data) => {
+    setIsSendingReset(true);
+    try {
+      await sendPasswordReset(data.resetEmail);
+      toast({
+        title: "Password Reset Email Sent",
+        description: "If an account exists for this email, a reset link has been sent. Please check your inbox (and spam folder).",
+      });
+      setForgotPasswordDialogOpen(false); // Close dialog on success
+      forgotPasswordForm.reset(); // Reset the forgot password form
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      const errorMessage = error.code
+        ? `${error.message.replace("Firebase: ", "")} (Code: ${error.code})`
+        : error.message || "Failed to send password reset email. Please try again.";
+      toast({
+        title: "Reset Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingReset(false);
     }
   };
   
@@ -81,10 +119,10 @@ export default function LoginPage() {
           <CardDescription>Log in to access your CareerCompass AI dashboard.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Form {...loginForm}>
+            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
               <FormField
-                control={form.control}
+                control={loginForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -97,7 +135,7 @@ export default function LoginPage() {
                 )}
               />
               <FormField
-                control={form.control}
+                control={loginForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -109,8 +147,59 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
-                {isLoading ? (
+              <div className="flex items-center justify-between">
+                <Dialog open={forgotPasswordDialogOpen} onOpenChange={setForgotPasswordDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="link" type="button" className="px-0 text-sm text-primary hover:underline">
+                      Forgot Password?
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <KeyRound className="h-5 w-5 text-primary" /> Reset Your Password
+                      </DialogTitle>
+                      <DialogDescription>
+                        Enter your email address below and we'll send you a link to reset your password.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...forgotPasswordForm}>
+                      <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-4 pt-2">
+                        <FormField
+                          control={forgotPasswordForm.control}
+                          name="resetEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email Address</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                  <Input type="email" placeholder="you@example.com" {...field} className="pl-10"/>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <DialogFooter className="sm:justify-start">
+                           <Button type="submit" disabled={isSendingReset} className="w-full bg-primary hover:bg-primary/90">
+                            {isSendingReset ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Sending...
+                              </>
+                            ) : (
+                              "Send Reset Link"
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <Button type="submit" disabled={isLoggingIn} className="w-full bg-primary hover:bg-primary/90">
+                {isLoggingIn ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logging in...
