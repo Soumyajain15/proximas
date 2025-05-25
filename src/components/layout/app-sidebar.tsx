@@ -25,11 +25,10 @@ import {
   BarChart3,
   Github,
   PanelLeft,
-  // LogOut icon removed
+  HelpCircle, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
-// Removed useAuth and useToast (toast was only for logout)
 
 
 const navItems = [
@@ -39,12 +38,12 @@ const navItems = [
   { href: "/resume-builder", icon: FileText, label: "Resume Builder" },
   { href: "/market-trends", icon: TrendingUp, label: "Market Trends" },
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
+  { href: "/faq", icon: HelpCircle, label: "FAQ" },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { open, isMobile, toggleSidebar } = useSidebar();
-  // Removed logout logic and user from useAuth
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -97,7 +96,6 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
-        {/* Logout button removed */}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />
