@@ -8,7 +8,7 @@ import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -262,9 +262,27 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  ButtonProps // Use ButtonProps which includes children and asChild
+>(({ className, onClick, children, asChild, ...restOfProps }, ref) => {
+  const { toggleSidebar } = useSidebar();
+
+  // Determine the children to pass to the Button component.
+  // If explicit children are provided to SidebarTrigger, use them.
+  // Otherwise, use default content. If asChild is true for SidebarTrigger,
+  // this default content must be wrapped in a single element for Slot.
+  const effectiveChildren = children !== undefined ? children : (
+    asChild ? (
+      <span> {/* Wrapper for default content when asChild is true and no explicit children */}
+        <PanelLeft />
+        <span className="sr-only">Toggle Sidebar</span>
+      </span>
+    ) : (
+      <>   {/* Fragment for default content when asChild is false */}
+        <PanelLeft />
+        <span className="sr-only">Toggle Sidebar</span>
+      </>
+    )
+  );
 
   return (
     <Button
@@ -274,16 +292,16 @@ const SidebarTrigger = React.forwardRef<
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
+        onClick?.(event);
+        toggleSidebar();
       }}
-      {...props}
+      asChild={asChild} // Pass the asChild prop
+      {...restOfProps}  // Pass the rest of the props (e.g., variant, size if overridden)
     >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
+      {effectiveChildren}
     </Button>
-  )
-})
+  );
+});
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
