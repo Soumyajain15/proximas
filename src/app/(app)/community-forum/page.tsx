@@ -63,15 +63,26 @@ export default function CommunityForumPage() {
       setIsLoadingSuggestions(true);
       try {
         const result = await getCommunitySuggestions();
-        setSuggestions(result.suggestions);
-      } catch (error) {
+        console.log("AI Community Suggestions Received:", result); // Log raw result
+        if (result && Array.isArray(result.suggestions)) {
+          setSuggestions(result.suggestions);
+        } else {
+          // This case should ideally be handled by the flow's fallback
+          console.error("Unexpected result structure from getCommunitySuggestions:", result);
+          setSuggestions([]);
+           toast({
+            title: "Content Format Error",
+            description: "Received unexpected data for community suggestions.",
+            variant: "destructive",
+          });
+        }
+      } catch (error: any) {
         console.error("Error fetching community suggestions:", error);
         toast({
           title: "Error Fetching Suggestions",
-          description: "Could not load AI-generated discussion topics. Please try refreshing.",
+          description: `Could not load AI topics: ${error.message || "Please try refreshing."}`,
           variant: "destructive",
         });
-        // Set empty array or default suggestions on error if desired
         setSuggestions([]); 
       } finally {
         setIsLoadingSuggestions(false);
@@ -175,7 +186,13 @@ export default function CommunityForumPage() {
             })}
           </div>
         ) : (
-          <p className="text-muted-foreground">No AI suggestions available at the moment. Please check back later.</p>
+          <Card className="shadow-md">
+            <CardContent className="pt-6 text-center">
+              <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+              <p className="text-muted-foreground">No AI suggestions available at the moment.</p>
+              <p className="text-sm text-muted-foreground/80">This could be a temporary issue, or the AI might not have suggestions for this topic right now. Please try refreshing the page later.</p>
+            </CardContent>
+          </Card>
         )}
       </section>
 
@@ -201,3 +218,4 @@ export default function CommunityForumPage() {
     </div>
   );
 }
+

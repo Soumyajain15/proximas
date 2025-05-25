@@ -17,7 +17,7 @@ const CommunitySuggestionItemSchema = z.object({
   id: z.string().describe("A unique ID for the suggestion (e.g., 'ask-me-anything')."),
   title: z.string().describe("The title of the discussion topic or question."),
   description: z.string().describe("A brief description or prompt for the discussion (1-2 sentences)."),
-  iconName: z.string().describe("Name of a relevant lucide-react icon (e.g., 'MessageSquare', 'Lightbulb', 'Users', 'Briefcase', 'HelpCircle')."),
+  iconName: z.string().describe("Name of a relevant lucide-react icon (e.g., 'MessagesSquare', 'Lightbulb', 'Users', 'Briefcase', 'HelpCircle')."),
 });
 export type CommunitySuggestionItem = z.infer<typeof CommunitySuggestionItemSchema>;
 
@@ -38,10 +38,10 @@ For each suggestion, provide:
 - A unique ID (e.g., 'career-pivot-advice', 'interview-tips-share', 'skill-gap-analysis').
 - A compelling title for the discussion.
 - A brief description or prompt (1-2 sentences) to kickstart the conversation.
-- A relevant lucide-react icon name (choose from: 'MessageSquare', 'Lightbulb', 'Users', 'Briefcase', 'HelpCircle', 'Share2', 'TrendingUp', 'Goal').
+- A relevant lucide-react icon name (choose from: 'MessagesSquare', 'Lightbulb', 'Users', 'Briefcase', 'HelpCircle', 'Share2', 'TrendingUp', 'Goal', 'Megaphone').
 
 Focus on topics that would encourage interaction, knowledge sharing, and peer support related to career growth, job searching, skill development, and workplace challenges.
-Ensure iconName fields contain valid lucide-react icon names.
+Ensure iconName fields contain valid lucide-react icon names from the provided list.
 `,
 });
 
@@ -72,7 +72,7 @@ const communitySuggestionsFlow = ai.defineFlow(
             id: 'default-topic-3',
             title: 'AMA: Ask a Senior Developer Anything',
             description: 'Hypothetical AMA thread: What questions would you ask a seasoned software developer about their career?',
-            iconName: 'MessageSquare',
+            iconName: 'MessagesSquare', // Corrected from MessageSquare
           },
         ],
       };
@@ -80,3 +80,4 @@ const communitySuggestionsFlow = ai.defineFlow(
     return output;
   }
 );
+
