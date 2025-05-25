@@ -7,3 +7,4 @@ import '@/ai/flows/ai-resume-builder.ts';
 import '@/ai/flows/ai-interview-simulator.ts';
 import '@/ai/flows/ai-improvement-tracker.ts';
 import '@/ai/flows/ai-market-trends.ts';
+import '@/ai/flows/ai-community-suggestions.ts';

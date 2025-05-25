@@ -1,11 +1,14 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, MessagesSquare, MessageCircleQuestion, Share2, Megaphone, ArrowRight } from "lucide-react";
+import { Users, MessagesSquare, MessageCircleQuestion, Share2, Megaphone, ArrowRight, Lightbulb, Briefcase, HelpCircle, Goal, TrendingUp, Loader2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { getCommunitySuggestions, type CommunitySuggestionItem } from "@/ai/flows/ai-community-suggestions";
+import { useToast } from "@/hooks/use-toast";
 
 interface HighlightCardProps {
   title: string;
@@ -13,6 +16,19 @@ interface HighlightCardProps {
   icon: LucideIcon;
   cta?: string;
 }
+
+const iconMap: Record<string, LucideIcon> = {
+  MessagesSquare,
+  Lightbulb,
+  Users,
+  Briefcase,
+  HelpCircle,
+  Share2,
+  Megaphone,
+  Goal,
+  TrendingUp,
+};
+
 
 function HighlightCard({ title, description, icon: Icon, cta }: HighlightCardProps) {
   return (
@@ -38,36 +54,62 @@ function HighlightCard({ title, description, icon: Icon, cta }: HighlightCardPro
 }
 
 export default function CommunityForumPage() {
+  const { toast } = useToast();
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
+  const [suggestions, setSuggestions] = useState<CommunitySuggestionItem[]>([]);
+
+  useEffect(() => {
+    async function fetchSuggestions() {
+      setIsLoadingSuggestions(true);
+      try {
+        const result = await getCommunitySuggestions();
+        setSuggestions(result.suggestions);
+      } catch (error) {
+        console.error("Error fetching community suggestions:", error);
+        toast({
+          title: "Error Fetching Suggestions",
+          description: "Could not load AI-generated discussion topics. Please try refreshing.",
+          variant: "destructive",
+        });
+        // Set empty array or default suggestions on error if desired
+        setSuggestions([]); 
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }
+    fetchSuggestions();
+  }, [toast]);
+
   const highlights: HighlightCardProps[] = [
     {
       title: "Discussion Boards",
       description: "Engage in topic-specific conversations on career advice, job opportunities, interview experiences, skill development, and more.",
       icon: MessagesSquare,
-      cta: "Browse Boards",
+      cta: "Browse Boards (Feature)",
     },
     {
       title: "Q&A Section",
       description: "Ask questions and get answers from experienced professionals and fellow users.",
       icon: MessageCircleQuestion,
-      cta: "Ask a Question",
+      cta: "Ask a Question (Feature)",
     },
     {
       title: "Mentorship Threads",
       description: "Connect with mentors who offer guidance, share insights, and provide feedback on your career progress.",
       icon: Users,
-      cta: "Find a Mentor",
+      cta: "Find a Mentor (Feature)",
     },
     {
       title: "Resource Sharing",
       description: "Exchange study materials, recommended courses, project ideas, and industry articles.",
       icon: Share2,
-      cta: "Share Resources",
+      cta: "Share Resources (Feature)",
     },
     {
       title: "Event Announcements",
       description: "Stay informed about upcoming webinars, workshops, and networking events.",
       icon: Megaphone,
-      cta: "View Events",
+      cta: "View Events (Feature)",
     },
   ];
 
@@ -89,18 +131,52 @@ export default function CommunityForumPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            This forum builds a sense of community and support, helping users not only grow individually but also contribute meaningfully to others’ success.
+            This forum builds a sense of community and support, helping users not only grow individually but also contribute meaningfully to others’ success. (Note: This page currently showcases AI-suggested topics; full interactivity is a future feature.)
           </p>
         </CardContent>
       </Card>
 
       <section>
-        <h2 className="text-2xl font-semibold text-foreground mb-6">Key Highlights</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-6">Forum Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {highlights.map((highlight) => (
             <HighlightCard key={highlight.title} {...highlight} />
           ))}
         </div>
+      </section>
+
+      <section>
+        <h2 className="text-2xl font-semibold text-foreground mb-6">AI-Suggested Discussion Starters</h2>
+        {isLoadingSuggestions ? (
+           <div className="flex justify-center items-center py-10">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="ml-4 text-muted-foreground">Loading AI suggestions...</p>
+          </div>
+        ) : suggestions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {suggestions.map((suggestion) => {
+              const Icon = iconMap[suggestion.iconName] || HelpCircle;
+              return (
+                <Card key={suggestion.id} className="shadow-md hover:shadow-lg transition-shadow duration-300 bg-card">
+                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                    <div className="p-2.5 rounded-full bg-accent/10 text-accent">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <CardTitle className="text-md">{suggestion.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">{suggestion.description}</p>
+                    <Button variant="outline" size="sm">
+                      Join Discussion <ArrowRight className="ml-2 h-3 w-3" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">No AI suggestions available at the moment. Please check back later.</p>
+        )}
       </section>
 
       <Card className="shadow-lg mt-8">
@@ -114,10 +190,10 @@ export default function CommunityForumPage() {
           </p>
           <div className="flex flex-wrap gap-4">
             <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
-              Start a New Discussion
+              Start a New Discussion (Feature)
             </Button>
             <Button variant="outline">
-              Introduce Yourself
+              Introduce Yourself (Feature)
             </Button>
           </div>
         </CardContent>
