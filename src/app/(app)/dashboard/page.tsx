@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState, useEffect, type ChangeEvent } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight } from "lucide-react";
+import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface FeatureCardProps {
   title: string;
@@ -39,7 +44,32 @@ function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardP
   );
 }
 
+const CAREER_GOALS_STORAGE_KEY = "careerCompassAI_careerGoals";
+
 export default function DashboardPage() {
+  const [careerGoals, setCareerGoals] = useState("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const savedGoals = localStorage.getItem(CAREER_GOALS_STORAGE_KEY);
+    if (savedGoals) {
+      setCareerGoals(savedGoals);
+    }
+  }, []);
+
+  const handleGoalsChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setCareerGoals(event.target.value);
+  };
+
+  const handleSaveGoals = () => {
+    localStorage.setItem(CAREER_GOALS_STORAGE_KEY, careerGoals);
+    toast({
+      title: "Goals Saved!",
+      description: "Your career goals have been saved locally.",
+      duration: 3000,
+    });
+  };
+
   const features: FeatureCardProps[] = [
     {
       title: "Career Path Guidance",
@@ -98,14 +128,21 @@ export default function DashboardPage() {
       <section className="mt-12 p-6 bg-card rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-foreground mb-3">Your Career Goals</h2>
         <p className="text-muted-foreground mb-4">
-          Define your aspirations to help Proxima tailor guidance for you. What are you aiming for in your career?
+          Define your aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career?
         </p>
-        {/* Placeholder for career goals input - can be expanded later */}
         <textarea
           placeholder="E.g., Transition to a data science role, achieve a leadership position in tech, find a remote job with work-life balance..."
           className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[100px] text-sm"
+          value={careerGoals}
+          onChange={handleGoalsChange}
+          aria-label="Career goals input"
         />
-        <Button className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90">Save Goals</Button>
+        <Button 
+          className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90"
+          onClick={handleSaveGoals}
+        >
+          <Save className="mr-2 h-4 w-4" /> Save Goals
+        </Button>
       </section>
     </div>
   );
