@@ -25,12 +25,11 @@ import {
   BarChart3,
   Github,
   PanelLeft,
-  LogOut, // Import LogOut icon
+  // LogOut icon removed
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useAuth } from "@/contexts/auth-context"; // Import useAuth
-import { useToast } from "@/hooks/use-toast";
+// Removed useAuth and useToast (toast was only for logout)
 
 
 const navItems = [
@@ -45,18 +44,7 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { open, isMobile, toggleSidebar } = useSidebar();
-  const { logout, user } = useAuth(); // Get logout function and user
-  const { toast } = useToast();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({ title: "Logged Out", description: "You have been successfully logged out." });
-      // Router push is handled within logout function in auth-context
-    } catch (error) {
-      toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
-    }
-  };
+  // Removed logout logic and user from useAuth
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -109,16 +97,7 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
-        {user && ( /* Show logout button only if user is logged in */
-          <Button 
-            variant="ghost" 
-            onClick={handleLogout}
-            className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center")}
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>Logout</span>
-          </Button>
-        )}
+        {/* Logout button removed */}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />
