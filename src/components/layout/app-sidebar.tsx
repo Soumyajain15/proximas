@@ -26,6 +26,7 @@ import {
   Github,
   PanelLeft,
   HelpCircle, 
+  Users, // Added Users icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -38,6 +39,7 @@ const navItems = [
   { href: "/resume-builder", icon: FileText, label: "Resume Builder" },
   { href: "/market-trends", icon: TrendingUp, label: "Market Trends" },
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
+  { href: "/community-forum", icon: Users, label: "Community Forum" }, // Added Community Forum
   { href: "/faq", icon: HelpCircle, label: "FAQ" },
 ];
 
