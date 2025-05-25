@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { getMarketTrends, type MarketTrendsInput, type MarketTrendsOutput, type MarketTrendItemSchema as TrendData } from "@/ai/flows/ai-market-trends";
+import { getMarketTrends, type MarketTrendsInput, type MarketTrendsOutput, type MarketTrendItem as TrendData } from "@/ai/flows/ai-market-trends";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -147,7 +147,7 @@ export default function MarketTrendsPage() {
                 <CardDescription>Dynamic insights based on your query: "{form.getValues("interestArea")}"</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
-            {result.trends.map((trend) => {
+            {result.trends.map((trend: TrendData) => {
                 const IconComponent = iconMap[trend.iconName] || HelpCircle;
                 return (
                 <Card key={trend.id} className="bg-background/50 hover:shadow-md transition-shadow">
@@ -197,3 +197,4 @@ export default function MarketTrendsPage() {
     </div>
   );
 }
+

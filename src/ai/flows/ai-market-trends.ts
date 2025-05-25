@@ -8,17 +8,18 @@
  * - getMarketTrends - A function to trigger the market trend generation.
  * - MarketTrendsInput - The input type for the getMarketTrends function.
  * - MarketTrendsOutput - The output type for the getMarketTrends function.
+ * - MarketTrendItem - The type for an individual market trend item.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const MarketTrendsInputSchema = z.object({
+const MarketTrendsInputSchema = z.object({
   interestArea: z.string().describe("User's primary area of interest for market trends (e.g., 'Software Engineering salaries in US', 'remote work future', 'AI skill demand', 'Cybersecurity job market')."),
 });
 export type MarketTrendsInput = z.infer<typeof MarketTrendsInputSchema>;
 
-export const MarketTrendItemSchema = z.object({
+const MarketTrendItemSchema = z.object({
   id: z.string().describe("A unique ID for the trend (e.g., 'avg-salary-swe')."),
   title: z.string().describe("The title of the market trend (e.g., 'Average Software Engineer Salary (US)')."),
   value: z.string().describe("A key value or statement for the trend (e.g., '$125,000 annually', 'Significant Growth', 'High Demand')."),
@@ -26,8 +27,9 @@ export const MarketTrendItemSchema = z.object({
   description: z.string().describe("A brief description of the trend and its implications."),
   trendDirection: z.string().optional().describe("Optional: The direction of the trend - 'up', 'down', or 'stable'."),
 });
+export type MarketTrendItem = z.infer<typeof MarketTrendItemSchema>;
 
-export const MarketTrendsOutputSchema = z.object({
+const MarketTrendsOutputSchema = z.object({
   trends: z.array(MarketTrendItemSchema).min(3).max(4).describe("A list of 3-4 current and relevant market trends based on the user's area of interest."),
 });
 export type MarketTrendsOutput = z.infer<typeof MarketTrendsOutputSchema>;
@@ -93,3 +95,4 @@ const marketTrendsFlow = ai.defineFlow(
     return output;
   }
 );
+

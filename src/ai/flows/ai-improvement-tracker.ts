@@ -13,13 +13,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const ImprovementTrackingInputSchema = z.object({
+const ImprovementTrackingInputSchema = z.object({
   userSkillsToImprove: z.string().describe("A comma-separated list of skills the user wants to improve or focus areas."),
   userCareerGoals: z.string().describe("The user's stated career goals or aspirations."),
 });
 export type ImprovementTrackingInput = z.infer<typeof ImprovementTrackingInputSchema>;
 
-export const ImprovementTrackingOutputSchema = z.object({
+const ImprovementTrackingOutputSchema = z.object({
   overallProgressEstimate: z.number().min(0).max(100).describe("An estimated overall skill progress percentage (0-100) based on the potential for growth given the inputs."),
   lastInterviewScoreContext: z.string().describe("A brief contextual statement about potential interview performance or general encouragement, e.g., 'Focusing on these areas can significantly boost your interview readiness.'"),
   areasToImprove: z.array(z.object({
@@ -81,3 +81,4 @@ const improvementTrackerFlow = ai.defineFlow(
     return output;
   }
 );
+
