@@ -1,9 +1,25 @@
-import { config } from 'dotenv';
-config();
+// src/app/(app)/community-forum/page.tsx
+// This page was intended for removal.
+// Making it a minimal component to prevent build errors if the file persists.
 
-import '@/ai/flows/ai-career-path-guidance.ts';
-import '@/ai/flows/ai-resume-builder.ts';
-import '@/ai/flows/ai-interview-simulator.ts';
-import '@/ai/flows/ai-improvement-tracker.ts';
-import '@/ai/flows/ai-market-trends.ts';
-// import '@/ai/flows/ai-community-suggestions.ts'; // Removed community suggestions flow
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+
+export default function CommunityForumPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to a safe page like the dashboard or homepage
+    router.replace('/dashboard');
+  }, [router]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-6">
+      <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+      <p className="text-muted-foreground">Community forum has been removed. Redirecting...</p>
+    </div>
+  );
+}
