@@ -25,7 +25,8 @@ import {
   BarChart3,
   Github,
   PanelLeft,
-  HelpCircle, 
+  HelpCircle,
+  Bot, // Added Bot icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -38,7 +39,7 @@ const navItems = [
   { href: "/resume-builder", icon: FileText, label: "Resume Builder" },
   { href: "/market-trends", icon: TrendingUp, label: "Market Trends" },
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
-  // { href: "/community-forum", icon: Users, label: "Community Forum" }, // Removed Community Forum
+  { href: "/ai-chatbot", icon: Bot, label: "AI Chatbot" }, // Added AI Chatbot
   { href: "/faq", icon: HelpCircle, label: "FAQ" },
 ];
 
