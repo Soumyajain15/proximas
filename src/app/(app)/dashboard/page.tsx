@@ -20,9 +20,9 @@ interface FeatureCardProps {
 
 function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardProps) {
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card hover:bg-card/95">
+    <Card className="shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col bg-card border hover:border-primary/40">
       <CardHeader className="flex flex-row items-start gap-4 space-y-0 pb-4">
-        <div className="p-3 rounded-full bg-primary/10 text-primary">
+        <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
           <Icon className="h-6 w-6" />
         </div>
         <div>
@@ -35,7 +35,7 @@ function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardP
       </CardContent>
       <CardFooter>
         <Link href={link} className="w-full">
-          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10 hover:text-primary">
+          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
             {cta} <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </Link>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
       </section>
 
       <section className="mt-10">
-         <Card className="shadow-lg bg-secondary/20 border-secondary">
+         <Card className="shadow-lg bg-secondary/20 border-primary/30">
           <CardHeader>
             <CardTitle className="flex items-center text-2xl text-foreground">
               <Target className="mr-3 h-7 w-7 text-primary" />
