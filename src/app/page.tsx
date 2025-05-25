@@ -19,7 +19,8 @@ export default function LandingPage() {
         Your personal AI-driven career coach for professional success. Navigate your career path with clarity and confidence.
       </p>
       
-      <Link href="/login">
+      {/* Updated link to always go to /dashboard */}
+      <Link href="/dashboard">
         <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg hover:shadow-xl transition-shadow duration-300">
           Get Started <ArrowRight className="ml-2 h-5 w-5" />
         </Button>

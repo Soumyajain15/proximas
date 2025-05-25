@@ -1,3 +1,4 @@
+
 // src/app/(app)/community-forum/page.tsx
 // This page was intended for removal.
 // Making it a minimal component to prevent build errors if the file persists.
