@@ -43,7 +43,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    /* Sidebar specific colors */
+    /* Sidebar specific colors (defaulting to a dark sidebar appearance for light app theme) */
     --sidebar-background: 210 35% 22%; /* Dark Slate Blue/Gray */
     --sidebar-foreground: 210 20% 90%; /* Light text for dark sidebar */
     --sidebar-primary: 207 68% 65%; /* Lighter primary for active/hover items in dark sidebar */
@@ -55,7 +55,7 @@ body {
   }
 
   .dark {
-    /* Adjusted dark mode theme based on the new palette */
+    /* Dark mode for main application */
     --background: 210 20% 10%;
     --foreground: 210 20% 90%;
     --card: 210 20% 15%;
@@ -82,14 +82,15 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    --sidebar-background: 210 25% 12%;
-    --sidebar-foreground: 210 15% 85%;
-    --sidebar-primary: 207 68% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 25% 22%;
-    --sidebar-accent-foreground: 210 15% 90%;
-    --sidebar-border: 210 25% 18%;
-    --sidebar-ring: 207 68% 53%;
+    /* Sidebar specific colors for when main app is in DARK mode: Make sidebar LIGHT */
+    --sidebar-background: 205 70% 95%;  /* Use light theme's main background */
+    --sidebar-foreground: 210 25% 15%; /* Use light theme's main foreground (dark text) */
+    --sidebar-primary: 207 68% 53%;    /* Use light theme's primary color */
+    --sidebar-primary-foreground: 0 0% 100%; /* Use light theme's primary foreground (white text) */
+    --sidebar-accent: 207 60% 88%; /* A very light blue for hover, similar to :root --secondary */
+    --sidebar-accent-foreground: 207 68% 30%; /* Darker blue text for hover on light accent, similar to :root --secondary-foreground */
+    --sidebar-border: 207 40% 80%;    /* Use light theme's border color */
+    --sidebar-ring: 207 68% 53%;      /* Use light theme's ring color */
   }
 }
 
