@@ -6,9 +6,10 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target, Info } from "lucide-react"; // Added Info icon
+import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target, Info, RotateCcw } from "lucide-react"; // Added Info, RotateCcw icons
 import type { LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea
 
 interface FeatureCardProps {
   title: string;
@@ -66,6 +67,16 @@ export default function DashboardPage() {
     toast({
       title: "Goals Saved!",
       description: "Your career goals have been saved locally.",
+      duration: 3000,
+    });
+  };
+
+  const handleResetGoals = () => {
+    setCareerGoals("");
+    localStorage.removeItem(CAREER_GOALS_STORAGE_KEY);
+    toast({
+      title: "Goals Reset!",
+      description: "Your career goals have been cleared.",
       duration: 3000,
     });
   };
@@ -154,24 +165,32 @@ export default function DashboardPage() {
               Your Career Goals
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Define your aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career?
+              Define your short-term and long-term aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible!
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <textarea
-              placeholder="E.g., Transition to a data science role, achieve a leadership position in tech, find a remote job with work-life balance..."
-              className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[100px] text-sm"
+            <Textarea
+              placeholder="E.g., Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
+              className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[150px] text-sm"
               value={careerGoals}
               onChange={handleGoalsChange}
               aria-label="Career goals input"
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex gap-2">
             <Button 
               className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-shadow"
               onClick={handleSaveGoals}
             >
               <Save className="mr-2 h-4 w-4" /> Save Goals
+            </Button>
+            <Button 
+              variant="outline"
+              className="shadow-md hover:shadow-lg transition-shadow"
+              onClick={handleResetGoals}
+              disabled={!careerGoals && !localStorage.getItem(CAREER_GOALS_STORAGE_KEY)}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" /> Reset Goals
             </Button>
           </CardFooter>
         </Card>
