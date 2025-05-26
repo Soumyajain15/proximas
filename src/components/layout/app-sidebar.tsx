@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
-// import { useRouter } from "next/navigation"; // No longer needed
 import {
   Sidebar,
   SidebarHeader,
@@ -27,12 +26,13 @@ import {
   HelpCircle,
   Bot, 
   Info,
-  // LogOut, // LogOut icon and related logic removed
+  Moon,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
-// import { useAuth } from "@/contexts/auth-context"; // Auth context removed
-// import { useToast } from "@/hooks/use-toast"; // Toast for logout removed
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -49,20 +49,16 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { open, isMobile } = useSidebar();
-  // const { logout, user, isFirebaseReady } = useAuth(); // Auth logic removed
-  // const router = useRouter(); // No longer needed for logout
-  // const { toast } = useToast(); // No longer needed for logout
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  // const handleLogout = async () => { // Logout logic removed
-  //   try {
-  //     await logout();
-  //     toast({ title: "Logged Out", description: "You have been successfully logged out." });
-  //     router.push("/login");
-  //   } catch (error) {
-  //     toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
-  //     console.error("Logout error:", error);
-  //   }
-  // };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -109,17 +105,28 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
-        {/* Logout button removed */}
-        {/* {user && isFirebaseReady && (
+        {mounted && (
           <Button 
             variant="ghost" 
-            className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center")} 
-            onClick={handleLogout}
+            size={(open || isMobile) ? "default" : "icon"} 
+            onClick={toggleTheme}
+            className={cn(
+              "w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", 
+              (open || isMobile) ? "justify-start" : "justify-center"
+            )}
+            aria-label="Toggle theme"
+            title={resolvedTheme === 'dark' ? "Switch to light mode" : "Switch to dark mode"}
           >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>Logout</span>
+            {resolvedTheme === 'dark' ? (
+              <Sun className="h-5 w-5 shrink-0" />
+            ) : (
+              <Moon className="h-5 w-5 shrink-0" />
+            )}
+            <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>
+              {resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </span>
           </Button>
-        )} */}
+        )}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />
