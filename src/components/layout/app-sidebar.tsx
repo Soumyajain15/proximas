@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Removed useRouter
+import { usePathname } from "next/navigation"; 
 import {
   Sidebar,
   SidebarHeader,
@@ -25,12 +25,10 @@ import {
   Github,
   HelpCircle,
   Bot, 
-  // LogOut, // Removed LogOut icon
-  // Users, // Users icon was for community forum, which is also removed
+  Info, // Added Info icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
-// Removed useAuth and useToast
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -41,14 +39,12 @@ const navItems = [
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
   { href: "/ai-chatbot", icon: Bot, label: "AI Chatbot" },
   { href: "/faq", icon: HelpCircle, label: "FAQ" },
+  { href: "/about", icon: Info, label: "About" }, // Added About page
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { open, isMobile } = useSidebar();
-  // Removed useAuth, router, toast
-
-  // Removed handleLogout function
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -95,7 +91,6 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
-        {/* Removed Logout button */}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />

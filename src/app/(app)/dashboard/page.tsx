@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target } from "lucide-react";
+import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target, Info } from "lucide-react"; // Added Info icon
 import type { LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -119,6 +119,13 @@ export default function DashboardPage() {
       icon: HelpCircle,
       link: "/faq",
       cta: "View FAQs"
+    },
+    {
+      title: "About CareerCompass",
+      description: "Learn more about our mission, vision, and platform.",
+      icon: Info,
+      link: "/about",
+      cta: "Learn More"
     },
   ];
 
