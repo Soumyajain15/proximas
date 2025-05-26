@@ -2,7 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; 
+import { usePathname } from "next/navigation"; 
+// import { useRouter } from "next/navigation"; // No longer needed
 import {
   Sidebar,
   SidebarHeader,
@@ -26,12 +27,12 @@ import {
   HelpCircle,
   Bot, 
   Info,
-  LogOut, // Added LogOut icon
+  // LogOut, // LogOut icon and related logic removed
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useAuth } from "@/contexts/auth-context";
-import { useToast } from "@/hooks/use-toast";
+// import { useAuth } from "@/contexts/auth-context"; // Auth context removed
+// import { useToast } from "@/hooks/use-toast"; // Toast for logout removed
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -48,20 +49,20 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { open, isMobile } = useSidebar();
-  const { logout, user, isFirebaseReady } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
+  // const { logout, user, isFirebaseReady } = useAuth(); // Auth logic removed
+  // const router = useRouter(); // No longer needed for logout
+  // const { toast } = useToast(); // No longer needed for logout
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({ title: "Logged Out", description: "You have been successfully logged out." });
-      router.push("/login");
-    } catch (error) {
-      toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
-      console.error("Logout error:", error);
-    }
-  };
+  // const handleLogout = async () => { // Logout logic removed
+  //   try {
+  //     await logout();
+  //     toast({ title: "Logged Out", description: "You have been successfully logged out." });
+  //     router.push("/login");
+  //   } catch (error) {
+  //     toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
+  //     console.error("Logout error:", error);
+  //   }
+  // };
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -108,7 +109,8 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
-        {user && isFirebaseReady && (
+        {/* Logout button removed */}
+        {/* {user && isFirebaseReady && (
           <Button 
             variant="ghost" 
             className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center")} 
@@ -117,7 +119,7 @@ export function AppSidebar() {
             <LogOut className="h-5 w-5 shrink-0" />
             <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>Logout</span>
           </Button>
-        )}
+        )} */}
         <Button variant="ghost" className={cn("w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", (open || isMobile) ? "justify-start" : "justify-center") } asChild>
           <Link href="https://github.com/Soumyajain15/Carrercompass" target="_blank">
             <Github className="h-5 w-5 shrink-0" />

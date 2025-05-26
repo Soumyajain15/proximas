@@ -1,8 +1,9 @@
 
 "use client"; 
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+// Authentication logic has been removed. This layout no longer performs auth checks.
+// import { useEffect } from "react";
+// import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   SidebarProvider,
@@ -11,44 +12,40 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Loader2, PanelLeft } from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
+import { PanelLeft } from "lucide-react"; // Loader2 and useAuth removed
+// import { useAuth } from "@/contexts/auth-context"; // Removed
 
 export default function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, isLoading, isFirebaseReady } = useAuth();
-  const router = useRouter();
+  // const { user, isLoading, isFirebaseReady } = useAuth(); // Removed
+  // const router = useRouter(); // Removed
 
-  useEffect(() => {
-    // Wait for Firebase to be ready and auth state to be determined
-    if (!isLoading && isFirebaseReady && !user) {
-      router.push("/login");
-    }
-  }, [user, isLoading, isFirebaseReady, router]);
+  // useEffect(() => { // Removed auth check
+  //   if (!isLoading && isFirebaseReady && !user) {
+  //     router.push("/login");
+  //   }
+  // }, [user, isLoading, isFirebaseReady, router]);
 
-  if (isLoading || !isFirebaseReady) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-muted-foreground">Loading application...</p>
-      </div>
-    );
-  }
+  // if (isLoading || !isFirebaseReady) { // Removed loading state related to auth
+  //   return (
+  //     <div className="flex h-screen w-full items-center justify-center bg-background">
+  //       <Loader2 className="h-12 w-12 animate-spin text-primary" />
+  //       <p className="ml-4 text-muted-foreground">Loading application...</p>
+  //     </div>
+  //   );
+  // }
 
-  if (!user && isFirebaseReady) {
-     // This case should ideally be handled by the useEffect redirect,
-     // but as a fallback, show loading or redirect again.
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-muted-foreground">Redirecting to login...</p>
-      </div>
-    );
-  }
-
+  // if (!user && isFirebaseReady) { // Removed
+  //   return (
+  //     <div className="flex h-screen w-full items-center justify-center bg-background">
+  //       <Loader2 className="h-12 w-12 animate-spin text-primary" />
+  //       <p className="ml-4 text-muted-foreground">Redirecting...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <SidebarProvider defaultOpen={true}>
