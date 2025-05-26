@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input"; // Added for file input
-import { ScanSearch, Loader2, CheckCircle, AlertTriangle, Sparkles, ThumbsUp, Edit, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input"; 
+import { ScanSearch, Loader2, Sparkles, ThumbsUp, Edit, Upload } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import * as pdfjsLib from 'pdfjs-dist';
 
 const formSchema = z.object({
   resumeText: z.string().min(100, "Resume text should be at least 100 characters."),
@@ -24,8 +25,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Dynamically determine the version of pdfjs-dist for the workerSrc URL
+// This is a bit of a trick to get the version pdfjs-dist reports for itself.
+const PDF_JS_VERSION = pdfjsLib.version;
+
 export default function AtsCheckerPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isParsingPdf, setIsParsingPdf] = useState(false);
   const [result, setResult] = useState<AtsCheckerOutput | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const { toast } = useToast();
@@ -38,46 +44,71 @@ export default function AtsCheckerPage() {
     },
   });
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    // Set the workerSrc for pdf.js. This is crucial for it to work.
+    // We use a CDN version for simplicity in a prototype environment.
+    // Make sure this version matches the installed pdfjs-dist version.
+     try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDF_JS_VERSION}/pdf.worker.min.mjs`;
+    } catch (error) {
+        console.error("Error setting pdf.js worker source:", error);
+        // Fallback or further error handling might be needed if this fails
+    }
+  }, []);
+
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.type === "text/plain") {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result;
-          if (typeof text === 'string') {
-            form.setValue("resumeText", text, { shouldValidate: true });
-            setSelectedFileName(file.name);
-            toast({
-              title: "File Uploaded",
-              description: `${file.name} content loaded into resume text area.`,
-            });
-          } else {
-            toast({
-              title: "File Read Error",
-              description: "Could not read text from the file.",
-              variant: "destructive",
-            });
-            setSelectedFileName(null);
+      if (file.type === "application/pdf") {
+        setSelectedFileName(file.name);
+        setIsParsingPdf(true);
+        toast({
+          title: "Processing PDF...",
+          description: `Extracting text from ${file.name}. This may take a moment.`,
+        });
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let allText = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            let pageText = "";
+            for (const item of textContent.items) {
+                // Type guard to ensure item has 'str' property
+                if ('str' in item) {
+                    pageText += item.str + " ";
+                }
+            }
+            allText += pageText.trim() + "\n\n"; // Add double newline for page separation
           }
-        };
-        reader.onerror = () => {
-           toast({
-            title: "File Read Error",
-            description: "Failed to read the file.",
+          form.setValue("resumeText", allText.trim(), { shouldValidate: true });
+          toast({
+            title: "PDF Processed",
+            description: `Text extracted from ${file.name} and loaded into resume text area.`,
+          });
+        } catch (error) {
+          console.error("Error parsing PDF:", error);
+          toast({
+            title: "PDF Read Error",
+            description: `Could not extract text from the PDF. Error: ${error instanceof Error ? error.message : String(error)}`,
             variant: "destructive",
           });
           setSelectedFileName(null);
-        };
-        reader.readAsText(file);
+          form.setValue("resumeText", "", { shouldValidate: false }); // Clear text area on error
+        } finally {
+          setIsParsingPdf(false);
+          // Clear the file input so the same file can be re-selected if needed
+          event.target.value = "";
+        }
       } else {
         toast({
           title: "Invalid File Type",
-          description: "Please upload a plain text (.txt) file.",
+          description: "Please upload a PDF (.pdf) file.",
           variant: "destructive",
         });
         setSelectedFileName(null);
-        // Clear the file input
         event.target.value = "";
       }
     }
@@ -118,7 +149,7 @@ export default function AtsCheckerPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Check Your Resume's ATS Compatibility</CardTitle>
-          <CardDescription>Paste your resume text, upload a .txt file, and provide the target job description below to get an AI-powered analysis.</CardDescription>
+          <CardDescription>Upload your resume as a PDF file, or paste its text, and provide the target job description below to get an AI-powered analysis.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -138,19 +169,21 @@ export default function AtsCheckerPage() {
               />
               
               <FormItem>
-                <FormLabel>Upload Resume (.txt file)</FormLabel>
+                <FormLabel>Upload Resume (.pdf file)</FormLabel>
                 <div className="flex items-center gap-2">
                     <FormControl>
                          <Input 
                             id="resumeFile"
                             type="file" 
-                            accept=".txt" 
+                            accept=".pdf" 
                             onChange={handleFileChange} 
+                            disabled={isParsingPdf}
                             className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                         />
                     </FormControl>
+                     {isParsingPdf && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
                 </div>
-                {selectedFileName && <p className="text-sm text-muted-foreground mt-1">Selected file: {selectedFileName}</p>}
+                {selectedFileName && !isParsingPdf && <p className="text-sm text-muted-foreground mt-1">Selected file: {selectedFileName}</p>}
                  <p className="text-xs text-muted-foreground mt-1">Alternatively, you can paste the resume text directly below.</p>
               </FormItem>
 
@@ -159,15 +192,15 @@ export default function AtsCheckerPage() {
                 name="resumeText"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Resume Text (Paste or Upload)</FormLabel>
+                    <FormLabel>Your Resume Text (Paste or Upload PDF)</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Paste your full resume text here, or upload a .txt file above. Ensure it's plain text for best results." {...field} className="min-h-[250px]" />
+                      <Textarea placeholder="Upload a PDF resume above, or paste your full resume text here. Ensure it's machine-readable text for best results from PDF." {...field} className="min-h-[250px]" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90">
+              <Button type="submit" disabled={isLoading || isParsingPdf} className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -185,16 +218,18 @@ export default function AtsCheckerPage() {
         </CardContent>
       </Card>
 
-      {isLoading && (
+      {(isLoading || isParsingPdf) && (
         <Card className="shadow-md">
           <CardContent className="pt-6 text-center">
             <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">AI is analyzing your resume and job description...</p>
+            <p className="mt-4 text-muted-foreground">
+              {isParsingPdf ? "Extracting text from PDF..." : "AI is analyzing your resume and job description..."}
+            </p>
           </CardContent>
         </Card>
       )}
 
-      {result && (
+      {result && !isLoading && !isParsingPdf && (
         <Card className="shadow-lg mt-8 bg-gradient-to-br from-primary/5 to-secondary/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -253,7 +288,7 @@ export default function AtsCheckerPage() {
            <CardFooter>
             <p className="text-xs text-muted-foreground">
               Note: This ATS score is an estimate generated by AI and should be used as a guideline.
-              Different ATS systems may have varying algorithms.
+              Different ATS systems may have varying algorithms. PDF text extraction accuracy can vary.
             </p>
           </CardFooter>
         </Card>
@@ -261,6 +296,3 @@ export default function AtsCheckerPage() {
     </div>
   );
 }
-
-
-    
