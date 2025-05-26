@@ -28,17 +28,21 @@ import {
   Info,
   Moon,
   Sun,
+  ScanSearch, // Added for ATS Checker
+  LogOut, // Added for Logout
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+// import { useAuth } from "@/contexts/auth-context"; // Removed as auth is removed
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/career-path", icon: BriefcaseBusiness, label: "Career Path Guidance" },
   { href: "/interview-simulator", icon: MessagesSquare, label: "Interview Simulator" },
   { href: "/resume-builder", icon: FileText, label: "Resume Builder" },
+  { href: "/ats-checker", icon: ScanSearch, label: "ATS Score Checker" }, // Added ATS Score Checker
   { href: "/market-trends", icon: TrendingUp, label: "Market Trends" },
   { href: "/improvement-tracking", icon: BarChart3, label: "Improvement Tracking" },
   { href: "/ai-chatbot", icon: Bot, label: "AI Chatbot" },
@@ -51,6 +55,7 @@ export function AppSidebar() {
   const { open, isMobile } = useSidebar();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  // const { logout, user } = useAuth(); // Removed as auth is removed
 
   useEffect(() => {
     setMounted(true);
@@ -59,6 +64,12 @@ export function AppSidebar() {
   const toggleTheme = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
+
+  // const handleLogout = async () => { // Removed as auth is removed
+  //   await logout();
+  //   // Optionally, redirect to login page or homepage after logout
+  //   // router.push('/login'); 
+  // };
 
   return (
     <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} className="border-r border-sidebar-border shadow-lg">
@@ -105,6 +116,24 @@ export function AppSidebar() {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border space-y-2">
+        {/* {user && ( // Removed as auth is removed
+          <Button
+            variant="ghost"
+            size={(open || isMobile) ? "default" : "icon"}
+            onClick={handleLogout}
+            className={cn(
+              "w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              (open || isMobile) ? "justify-start" : "justify-center"
+            )}
+            aria-label="Logout"
+            title="Logout"
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className={cn("ml-2 transition-opacity duration-200", (open || isMobile) ? "opacity-100" : "opacity-0 w-0")}>
+              Logout
+            </span>
+          </Button>
+        )} */}
         {mounted && (
           <Button 
             variant="ghost" 
