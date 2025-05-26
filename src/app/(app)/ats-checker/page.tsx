@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ScanSearch, Loader2, CheckCircle, AlertTriangle, Sparkles, ThumbsUp, Edit } from "lucide-react";
+import { Input } from "@/components/ui/input"; // Added for file input
+import { ScanSearch, Loader2, CheckCircle, AlertTriangle, Sparkles, ThumbsUp, Edit, Upload } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ type FormData = z.infer<typeof formSchema>;
 export default function AtsCheckerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AtsCheckerOutput | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -35,6 +37,51 @@ export default function AtsCheckerPage() {
       jobDescription: "",
     },
   });
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type === "text/plain") {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result;
+          if (typeof text === 'string') {
+            form.setValue("resumeText", text, { shouldValidate: true });
+            setSelectedFileName(file.name);
+            toast({
+              title: "File Uploaded",
+              description: `${file.name} content loaded into resume text area.`,
+            });
+          } else {
+            toast({
+              title: "File Read Error",
+              description: "Could not read text from the file.",
+              variant: "destructive",
+            });
+            setSelectedFileName(null);
+          }
+        };
+        reader.onerror = () => {
+           toast({
+            title: "File Read Error",
+            description: "Failed to read the file.",
+            variant: "destructive",
+          });
+          setSelectedFileName(null);
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a plain text (.txt) file.",
+          variant: "destructive",
+        });
+        setSelectedFileName(null);
+        // Clear the file input
+        event.target.value = "";
+      }
+    }
+  };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsLoading(true);
@@ -71,7 +118,7 @@ export default function AtsCheckerPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Check Your Resume's ATS Compatibility</CardTitle>
-          <CardDescription>Paste your resume text and the target job description below to get an AI-powered analysis.</CardDescription>
+          <CardDescription>Paste your resume text, upload a .txt file, and provide the target job description below to get an AI-powered analysis.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -89,14 +136,32 @@ export default function AtsCheckerPage() {
                   </FormItem>
                 )}
               />
+              
+              <FormItem>
+                <FormLabel>Upload Resume (.txt file)</FormLabel>
+                <div className="flex items-center gap-2">
+                    <FormControl>
+                         <Input 
+                            id="resumeFile"
+                            type="file" 
+                            accept=".txt" 
+                            onChange={handleFileChange} 
+                            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                        />
+                    </FormControl>
+                </div>
+                {selectedFileName && <p className="text-sm text-muted-foreground mt-1">Selected file: {selectedFileName}</p>}
+                 <p className="text-xs text-muted-foreground mt-1">Alternatively, you can paste the resume text directly below.</p>
+              </FormItem>
+
               <FormField
                 control={form.control}
                 name="resumeText"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Resume Text</FormLabel>
+                    <FormLabel>Your Resume Text (Paste or Upload)</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Paste your full resume text here. Ensure it's plain text for best results." {...field} className="min-h-[250px]" />
+                      <Textarea placeholder="Paste your full resume text here, or upload a .txt file above. Ensure it's plain text for best results." {...field} className="min-h-[250px]" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,7 +219,7 @@ export default function AtsCheckerPage() {
 
             <div>
               <h4 className="font-semibold text-md text-foreground mb-2 flex items-center"><ThumbsUp className="h-5 w-5 mr-2 text-green-600"/>Positive Points:</h4>
-              {result.positivePoints.length > 0 ? (
+              {result.positivePoints && result.positivePoints.length > 0 ? (
                 <ul className="list-disc list-inside space-y-1 pl-4 text-sm text-muted-foreground bg-green-500/10 p-3 rounded-md">
                   {result.positivePoints.map((point, index) => (
                     <li key={`positive-${index}`}>{point}</li>
@@ -167,7 +232,7 @@ export default function AtsCheckerPage() {
 
             <div>
               <h4 className="font-semibold text-md text-foreground mb-2 flex items-center"><Edit className="h-5 w-5 mr-2 text-orange-500"/>Areas for Improvement:</h4>
-              {result.areasForImprovement.length > 0 ? (
+              {result.areasForImprovement && result.areasForImprovement.length > 0 ? (
               <ul className="list-disc list-inside space-y-1 pl-4 text-sm text-muted-foreground bg-orange-500/10 p-3 rounded-md">
                 {result.areasForImprovement.map((area, index) => (
                   <li key={`improve-${index}`}>{area}</li>
@@ -196,3 +261,6 @@ export default function AtsCheckerPage() {
     </div>
   );
 }
+
+
+    
