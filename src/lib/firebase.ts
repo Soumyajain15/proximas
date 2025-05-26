@@ -14,7 +14,7 @@ const firebaseConfig = {
 let app: FirebaseApp | undefined;
 let authInstance: Auth | undefined;
 
-// Check if all required Firebase config values are present and not placeholders
+// Check if essential Firebase config values are present and NOT placeholders
 const isConfigValid = 
   firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_") &&
   firebaseConfig.authDomain && !firebaseConfig.authDomain.startsWith("YOUR_") &&
@@ -26,7 +26,7 @@ if (isConfigValid) {
       app = initializeApp(firebaseConfig);
       authInstance = getAuth(app);
       if (typeof window !== 'undefined') {
-        console.log("Firebase app initialized successfully.");
+        // console.log("Firebase app initialized successfully."); // Optional: for debugging
       }
     } catch (error) {
       console.error("Error initializing Firebase app:", error);

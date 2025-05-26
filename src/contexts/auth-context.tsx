@@ -5,23 +5,22 @@ import React, { createContext, useContext, useEffect, useState, type ReactNode }
 import { 
   onAuthStateChanged, 
   type User, 
-  type Auth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail
 } from "firebase/auth";
-import { authInstance as firebaseAuthInstance } from "@/lib/firebase"; // Renamed import
+import { authInstance as firebaseAuthInstance } from "@/lib/firebase"; 
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isFirebaseReady: boolean; // Added to indicate if Firebase itself initialized
   login: (email: string, pass: string) => Promise<User | null>;
   signup: (email: string, pass: string) => Promise<User | null>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
-  isFirebaseReady: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,14 +33,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!firebaseAuthInstance) {
-      console.error("Firebase Auth instance is not available in AuthProvider. Authentication will not work. Please check Firebase configuration in .env file and restart your server.");
+      // This console.error is already handled in firebase.ts if config is bad
+      // It's good to also check here to prevent further operations
+      if (typeof window !== 'undefined') {
+         console.error("Firebase Auth instance is not available in AuthProvider. Authentication will not work. Please check Firebase configuration in .env file and restart your server.");
+      }
       setIsLoading(false); 
       setIsFirebaseReady(false);
       return;
     }
-    setIsFirebaseReady(true);
+
+    setIsFirebaseReady(true); // Firebase auth instance is available
     const unsubscribe = onAuthStateChanged(firebaseAuthInstance, (currentUser) => {
       setUser(currentUser);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error in onAuthStateChanged listener:", error);
+      toast({ title: "Auth Listener Error", description: "Could not listen to authentication changes.", variant: "destructive"});
       setIsLoading(false);
     });
     return () => unsubscribe();
@@ -71,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Firebase Auth is not initialized.");
     }
     await signOut(firebaseAuthInstance);
-    setUser(null); // Explicitly set user to null on logout
+    setUser(null);
   };
   
   const sendPasswordReset = async (email: string) => {

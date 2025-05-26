@@ -10,7 +10,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, Loader2, MailQuestion } from "lucide-react";
@@ -41,7 +40,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "test@example.com", // Hardcoded for testing
-      password: "password123", // Hardcoded for testing
+      password: "password123",    // Hardcoded for testing
     },
   });
 
@@ -64,11 +63,14 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (error: any) {
       const errorCode = error.code;
-      let errorMessage = error.message;
-      if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
-        errorMessage = "Invalid email or password. Please try again.";
-      } else if (errorCode) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (errorCode) {
         errorMessage = `Login failed: ${errorCode}. Please try again.`;
+        if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
+            errorMessage = "Invalid email or password. Please try again.";
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       toast({ title: "Login Failed", description: errorMessage, variant: "destructive" });
       console.error("Login error:", error);
@@ -89,7 +91,14 @@ export default function LoginPage() {
       setIsResetDialogOpen(false);
       forgotPasswordForm.reset();
     } catch (error: any) {
-      toast({ title: "Password Reset Failed", description: error.message || "Could not send reset email.", variant: "destructive" });
+      const errorCode = error.code;
+      let errorMessage = "Could not send reset email. Please try again.";
+      if (errorCode) {
+        errorMessage = `Password reset failed: ${errorCode}.`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      toast({ title: "Password Reset Failed", description: errorMessage, variant: "destructive" });
       console.error("Password reset error:", error);
     } finally {
       setIsPasswordResetLoading(false);
@@ -108,7 +117,7 @@ export default function LoginPage() {
           <CardDescription>
             Sign in to access your CareerCompass AI dashboard.
             <br />
-            <span className="text-xs text-muted-foreground">(Test credentials: test@example.com / password123)</span>
+            <span className="text-xs text-muted-foreground">(Test credentials pre-filled: test@example.com / password123)</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,7 +158,7 @@ export default function LoginPage() {
            <div className="mt-4 text-center text-sm">
             <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="link" className="p-0 h-auto text-primary hover:underline">
+                <Button variant="link" className="p-0 h-auto text-primary hover:underline" disabled={!isFirebaseReady}>
                   Forgot Password?
                 </Button>
               </DialogTrigger>

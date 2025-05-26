@@ -10,7 +10,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Loader2 } from "lucide-react";
@@ -54,11 +53,14 @@ export default function SignupPage() {
       router.push("/login"); 
     } catch (error: any) {
       const errorCode = error.code;
-      let errorMessage = error.message;
-      if (errorCode === 'auth/email-already-in-use') {
-        errorMessage = "This email address is already in use. Please try logging in or use a different email.";
-      } else if (errorCode) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
+       if (errorCode) {
         errorMessage = `Signup failed: ${errorCode}. Please try again.`;
+        if (errorCode === 'auth/email-already-in-use') {
+            errorMessage = "This email address is already in use. Please try logging in or use a different email.";
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       toast({ title: "Signup Failed", description: errorMessage, variant: "destructive" });
       console.error("Signup error:", error);

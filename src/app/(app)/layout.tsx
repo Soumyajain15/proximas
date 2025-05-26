@@ -1,6 +1,8 @@
 
 "use client"; 
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   SidebarProvider,
@@ -9,15 +11,44 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { PanelLeft } from "lucide-react";
-// Removed useAuth, useRouter, useEffect, Loader2
+import { Loader2, PanelLeft } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Removed auth-related logic and loading state
+  const { user, isLoading, isFirebaseReady } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Wait for Firebase to be ready and auth state to be determined
+    if (!isLoading && isFirebaseReady && !user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, isFirebaseReady, router]);
+
+  if (isLoading || !isFirebaseReady) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Loading application...</p>
+      </div>
+    );
+  }
+
+  if (!user && isFirebaseReady) {
+     // This case should ideally be handled by the useEffect redirect,
+     // but as a fallback, show loading or redirect again.
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Redirecting to login...</p>
+      </div>
+    );
+  }
+
 
   return (
     <SidebarProvider defaultOpen={true}>
