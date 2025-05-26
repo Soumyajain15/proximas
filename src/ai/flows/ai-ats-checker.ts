@@ -15,7 +15,7 @@ import {z} from 'genkit';
 
 const AtsCheckerInputSchema = z.object({
   resumeText: z.string().min(100, "Resume text should be at least 100 characters.").describe('The full text content of the user\'s resume.'),
-  jobDescription: z.string().min(50, "Job description should be at least 50 characters.").describe('The full text content of the target job description.'),
+  jobDescription: z.string().describe('The full text content of the target job description.'),
 });
 export type AtsCheckerInput = z.infer<typeof AtsCheckerInputSchema>;
 

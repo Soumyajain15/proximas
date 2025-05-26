@@ -20,7 +20,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 const formSchema = z.object({
   resumeText: z.string().min(100, "Resume text should be at least 100 characters."),
-  jobDescription: z.string().min(50, "Job description should be at least 50 characters."),
+  jobDescription: z.string().min(1, "Job description cannot be empty."), // Changed from min(50)
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -81,7 +81,7 @@ export default function AtsCheckerPage() {
                     pageText += item.str + " ";
                 }
             }
-            allText += pageText.trim() + "\n\n"; // Add double newline for page separation
+            allText += pageText.trim() + "\\n\\n"; // Add double newline for page separation
           }
           form.setValue("resumeText", allText.trim(), { shouldValidate: true });
           toast({
