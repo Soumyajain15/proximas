@@ -6,10 +6,10 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target, Info, RotateCcw } from "lucide-react"; // Added Info, RotateCcw icons
+import { LayoutDashboard, BriefcaseBusiness, MessagesSquare, FileText, TrendingUp, BarChart3, ArrowRight, Save, Bot, HelpCircle, Target, Info, RotateCcw } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea"; // Import Textarea
+import { Textarea } from "@/components/ui/textarea";
 
 interface FeatureCardProps {
   title: string;
@@ -49,12 +49,16 @@ const CAREER_GOALS_STORAGE_KEY = "careerCompassAI_careerGoals";
 
 export default function DashboardPage() {
   const [careerGoals, setCareerGoals] = useState("");
+  const [hasStoredGoals, setHasStoredGoals] = useState(false); // New state
   const { toast } = useToast();
 
   useEffect(() => {
     const savedGoals = localStorage.getItem(CAREER_GOALS_STORAGE_KEY);
     if (savedGoals) {
       setCareerGoals(savedGoals);
+      setHasStoredGoals(true);
+    } else {
+      setHasStoredGoals(false);
     }
   }, []);
 
@@ -64,6 +68,7 @@ export default function DashboardPage() {
 
   const handleSaveGoals = () => {
     localStorage.setItem(CAREER_GOALS_STORAGE_KEY, careerGoals);
+    setHasStoredGoals(true); // Update hasStoredGoals when saving
     toast({
       title: "Goals Saved!",
       description: "Your career goals have been saved locally.",
@@ -74,6 +79,7 @@ export default function DashboardPage() {
   const handleResetGoals = () => {
     setCareerGoals("");
     localStorage.removeItem(CAREER_GOALS_STORAGE_KEY);
+    setHasStoredGoals(false); // Update hasStoredGoals when resetting
     toast({
       title: "Goals Reset!",
       description: "Your career goals have been cleared.",
@@ -165,13 +171,15 @@ export default function DashboardPage() {
               Your Career Goals
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Define your short-term and long-term aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible!
+              Define your short-term and long-term aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible! 
+              E.g., "Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. 
+              Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea
               placeholder="E.g., Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
-              className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[150px] text-sm"
+              className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[200px] text-sm"
               value={careerGoals}
               onChange={handleGoalsChange}
               aria-label="Career goals input"
@@ -188,7 +196,7 @@ export default function DashboardPage() {
               variant="outline"
               className="shadow-md hover:shadow-lg transition-shadow"
               onClick={handleResetGoals}
-              disabled={!careerGoals && !localStorage.getItem(CAREER_GOALS_STORAGE_KEY)}
+              disabled={!careerGoals && !hasStoredGoals} // Updated disabled condition
             >
               <RotateCcw className="mr-2 h-4 w-4" /> Reset Goals
             </Button>
