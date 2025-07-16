@@ -180,13 +180,13 @@ export default function MarketTrendsPage() {
 
       <Card className="shadow-lg mt-8">
         <CardHeader>
-            <CardTitle>Geographic Salary Distribution (Example)</CardTitle>
-            <CardDescription>Illustrative map showing salary variations by region. (Placeholder image)</CardDescription>
+            <CardTitle>Geographic Salary Distribution</CardTitle>
+            <CardDescription>Illustrative map showing salary variations by region.</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center p-4 bg-muted/30 rounded-md">
             <Image 
                 src="https://placehold.co/600x400.png" 
-                alt="Geographic Salary Map Placeholder" 
+                alt="Geographic Salary Map" 
                 width={600} 
                 height={400}
                 data-ai-hint="world map analytics"
@@ -197,4 +197,3 @@ export default function MarketTrendsPage() {
     </div>
   );
 }
-

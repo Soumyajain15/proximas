@@ -47,7 +47,7 @@ export default function AboutPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-6 w-6 text-primary" />
-            The Team (Placeholder)
+            The Team
           </CardTitle>
           <CardDescription>
             Meet the passionate individuals behind Proxima AI.
@@ -57,7 +57,7 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row items-center gap-6 p-4 bg-muted/30 rounded-md">
             <Image
               src="https://placehold.co/400x300.png"
-              alt="Team Placeholder Image"
+              alt="Team Image"
               width={400}
               height={300}
               data-ai-hint="team meeting"
@@ -66,9 +66,6 @@ export default function AboutPage() {
             <div className="md:w-2/3">
               <p className="text-muted-foreground">
                 We are a diverse team of innovators, developers, career coaches, and AI enthusiasts dedicated to building the next generation of career development tools. Our combined expertise allows us to create a platform that is both technologically advanced and deeply human-centric. 
-              </p>
-              <p className="text-muted-foreground mt-2">
-                (More detailed team member profiles and information would go here.)
               </p>
             </div>
           </div>
@@ -81,9 +78,8 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Have questions or feedback? We&apos;d love to hear from you!
-            <br />
-            (Placeholder for contact information or a contact form)
+            Have questions or feedback? We&apos;d love to hear from you.
+            Reach out to us at contact@proxima.ai.
           </p>
         </CardContent>
       </Card>

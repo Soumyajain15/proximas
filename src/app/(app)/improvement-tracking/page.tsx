@@ -231,13 +231,13 @@ export default function ImprovementTrackingPage() {
       
       <Card className="shadow-lg mt-8">
         <CardHeader>
-            <CardTitle>Progress Over Time (Example)</CardTitle>
-            <CardDescription>Illustrative chart showing skill improvement. (Placeholder image)</CardDescription>
+            <CardTitle>Progress Over Time</CardTitle>
+            <CardDescription>Illustrative chart showing skill improvement.</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center p-4 bg-muted/30 rounded-md">
             <Image 
                 src="https://placehold.co/600x300.png" 
-                alt="Progress Chart Placeholder" 
+                alt="Progress Chart" 
                 width={600} 
                 height={300}
                 data-ai-hint="line graph analytics"
@@ -250,5 +250,4 @@ export default function ImprovementTrackingPage() {
   );
 }
 
-// For Link component usage
 import Link from "next/link";

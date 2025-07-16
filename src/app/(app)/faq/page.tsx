@@ -78,9 +78,8 @@ export default function FAQPage() {
         <CardContent>
           <p className="text-muted-foreground">
             If your question isn&apos;t answered above, please don&apos;t hesitate to contact our support team.
-            We&apos;re here to help you make the most of Proxima AI. (Contact method placeholder)
+            We&apos;re here to help you make the most of Proxima AI.
           </p>
-          {/* Placeholder for contact form or email link */}
         </CardContent>
       </Card>
     </div>

@@ -49,7 +49,7 @@ const CAREER_GOALS_STORAGE_KEY = "proximaAI_careerGoals";
 
 export default function DashboardPage() {
   const [careerGoals, setCareerGoals] = useState("");
-  const [hasStoredGoals, setHasStoredGoals] = useState(false); // New state
+  const [hasStoredGoals, setHasStoredGoals] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   const handleSaveGoals = () => {
     localStorage.setItem(CAREER_GOALS_STORAGE_KEY, careerGoals);
-    setHasStoredGoals(true); // Update hasStoredGoals when saving
+    setHasStoredGoals(true);
     toast({
       title: "Goals Saved!",
       description: "Your career goals have been saved locally.",
@@ -79,7 +79,7 @@ export default function DashboardPage() {
   const handleResetGoals = () => {
     setCareerGoals("");
     localStorage.removeItem(CAREER_GOALS_STORAGE_KEY);
-    setHasStoredGoals(false); // Update hasStoredGoals when resetting
+    setHasStoredGoals(false);
     toast({
       title: "Goals Reset!",
       description: "Your career goals have been cleared.",
@@ -171,14 +171,12 @@ export default function DashboardPage() {
               Your Career Goals
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Define your short-term and long-term aspirations to help Proxima AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible! 
-              E.g., "Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. 
-              Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
+              Define your short-term and long-term aspirations to help Proxima AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder="E.g., Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
+              placeholder="Describe your short-term and long-term career objectives. For example, specify certifications you want to achieve, roles you aspire to, or skills you want to master."
               className="w-full p-3 rounded-md border border-input bg-background focus:ring-2 focus:ring-primary outline-none min-h-[200px] text-sm"
               value={careerGoals}
               onChange={handleGoalsChange}
@@ -196,7 +194,7 @@ export default function DashboardPage() {
               variant="outline"
               className="shadow-md hover:shadow-lg transition-shadow"
               onClick={handleResetGoals}
-              disabled={!careerGoals && !hasStoredGoals} // Updated disabled condition
+              disabled={!careerGoals && !hasStoredGoals}
             >
               <RotateCcw className="mr-2 h-4 w-4" /> Reset Goals
             </Button>
