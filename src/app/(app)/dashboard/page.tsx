@@ -45,7 +45,7 @@ function FeatureCard({ title, description, icon: Icon, link, cta }: FeatureCardP
   );
 }
 
-const CAREER_GOALS_STORAGE_KEY = "careerCompassAI_careerGoals";
+const CAREER_GOALS_STORAGE_KEY = "proximaAI_careerGoals";
 
 export default function DashboardPage() {
   const [careerGoals, setCareerGoals] = useState("");
@@ -132,13 +132,13 @@ export default function DashboardPage() {
     },
     {
       title: "FAQ",
-      description: "Find answers to common questions about CareerCompass AI.",
+      description: "Find answers to common questions about Proxima AI.",
       icon: HelpCircle,
       link: "/faq",
       cta: "View FAQs"
     },
     {
-      title: "About CareerCompass",
+      title: "About Proxima",
       description: "Learn more about our mission, vision, and platform.",
       icon: Info,
       link: "/about",
@@ -171,7 +171,7 @@ export default function DashboardPage() {
               Your Career Goals
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Define your short-term and long-term aspirations to help CareerCompass AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible! 
+              Define your short-term and long-term aspirations to help Proxima AI tailor guidance for you. What are you aiming for in your career? Be as specific as possible! 
               E.g., "Short-term: Complete a certification in cloud computing (AWS Certified Solutions Architect) within 6 months and build 2 portfolio projects showcasing these skills. 
               Long-term: Transition to a Data Science Manager role within 5 years, leading a team to develop impactful AI solutions for sustainability..."
             </CardDescription>

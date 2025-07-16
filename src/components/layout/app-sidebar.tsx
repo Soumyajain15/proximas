@@ -81,7 +81,7 @@ export function AppSidebar() {
               open || isMobile ? "opacity-100" : "opacity-0 w-0"
             )}
           >
-            CareerCompass
+            Proxima
           </span>
         </Link>
       </SidebarHeader>

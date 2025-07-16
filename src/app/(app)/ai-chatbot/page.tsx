@@ -39,7 +39,7 @@ const capabilities: Capability[] = [
   },
   {
     title: "Platform Navigation Help",
-    description: "Easily explore CareerCompass AI’s features with chatbot assistance guiding you through career tools, resources, and community features.",
+    description: "Easily explore Proxima AI’s features with chatbot assistance guiding you through career tools, resources, and community features.",
     icon: Navigation,
   },
   {
@@ -63,7 +63,7 @@ type GenkitHistoryMessage = {
 
 export default function AIChatbotPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { id: 'initial-ai-greeting', role: 'ai', content: "Hello! I'm CareerCompass AI. How can I help you with your career journey today?" }
+    { id: 'initial-ai-greeting', role: 'ai', content: "Hello! I'm Proxima AI. How can I help you with your career journey today?" }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -148,7 +148,7 @@ export default function AIChatbotPage() {
 
       <Card className="shadow-lg mt-8 flex flex-col h-[calc(100vh-280px)] min-h-[500px] max-h-[700px]">
         <CardHeader className="shrink-0">
-          <CardTitle>Interact with CareerCompass AI</CardTitle>
+          <CardTitle>Interact with Proxima AI</CardTitle>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col p-0 overflow-hidden">
           <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>

@@ -58,7 +58,7 @@ export default function AppLayout({
                 <span className="sr-only">Toggle Sidebar</span>
               </Button>
             </SidebarTrigger>
-            <h1 className="text-xl font-semibold text-primary">CareerCompass AI</h1>
+            <h1 className="text-xl font-semibold text-primary">Proxima AI</h1>
           </header>
           <ScrollArea className="h-[calc(100vh-theme(spacing.14))] lg:h-screen">
             <main className="flex-1 p-4 md:p-6 lg:p-8">

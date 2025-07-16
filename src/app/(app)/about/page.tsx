@@ -10,7 +10,7 @@ export default function AboutPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="About CareerCompass AI"
+        title="About Proxima AI"
         description="Learn more about our mission, vision, and the team dedicated to helping you navigate your career path."
         icon={Info}
       />
@@ -24,7 +24,7 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            At CareerCompass AI, our mission is to empower individuals with the tools, insights, and guidance needed to confidently navigate their career journeys. We believe that everyone deserves access to personalized career coaching and resources to achieve their professional aspirations.
+            At Proxima AI, our mission is to empower individuals with the tools, insights, and guidance needed to confidently navigate their career journeys. We believe that everyone deserves access to personalized career coaching and resources to achieve their professional aspirations.
           </p>
         </CardContent>
       </Card>
@@ -38,7 +38,7 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            We envision a world where career development is accessible, intuitive, and tailored to each individual's unique strengths and goals. CareerCompass AI aims to be the leading platform for AI-driven career guidance, fostering a community of supported and successful professionals.
+            We envision a world where career development is accessible, intuitive, and tailored to each individual's unique strengths and goals. Proxima AI aims to be the leading platform for AI-driven career guidance, fostering a community of supported and successful professionals.
           </p>
         </CardContent>
       </Card>
@@ -50,7 +50,7 @@ export default function AboutPage() {
             The Team (Placeholder)
           </CardTitle>
           <CardDescription>
-            Meet the passionate individuals behind CareerCompass AI.
+            Meet the passionate individuals behind Proxima AI.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

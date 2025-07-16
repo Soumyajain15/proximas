@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CareerCompass AI - Your Personal Career Coach',
-  description: 'AI-driven career coaching for professional success. Get guidance, prepare for interviews, and build your resume with CareerCompass AI.',
+  title: 'Proxima AI - Your Personal Career Coach',
+  description: 'AI-driven career coaching for professional success. Get guidance, prepare for interviews, and build your resume with Proxima AI.',
 };
 
 export default function RootLayout({

@@ -20,7 +20,7 @@ export default function LandingPage() {
         <Compass className="h-24 w-24 text-primary animate-pulse" />
       </div>
       <h1 className="text-5xl font-bold text-primary mb-6">
-        Welcome to CareerCompass AI
+        Welcome to Proxima AI
       </h1>
       <p className="text-xl text-foreground mb-10 max-w-2xl">
         Your personal AI-driven career coach for professional success. Navigate your career path with clarity and confidence.
@@ -34,7 +34,7 @@ export default function LandingPage() {
       </Link>
 
       <footer className="absolute bottom-8 text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} CareerCompass AI. All rights reserved.
+        &copy; {new Date().getFullYear()} Proxima AI. All rights reserved.
       </footer>
     </div>
   );

@@ -9,8 +9,8 @@ import { HelpCircle } from "lucide-react";
 const faqData = [
   {
     id: "faq-1",
-    question: "What is CareerCompass AI?",
-    answer: "CareerCompass AI is an innovative platform designed to assist users in navigating their career paths using artificial intelligence. It offers tools for career path guidance, interview simulation, resume building, market trend analysis, and personalized improvement tracking.",
+    question: "What is Proxima AI?",
+    answer: "Proxima AI is an innovative platform designed to assist users in navigating their career paths using artificial intelligence. It offers tools for career path guidance, interview simulation, resume building, market trend analysis, and personalized improvement tracking.",
   },
   {
     id: "faq-2",
@@ -44,7 +44,7 @@ export default function FAQPage() {
     <div className="space-y-8">
       <PageHeader
         title="Frequently Asked Questions"
-        description="Find answers to common questions about CareerCompass AI and its features."
+        description="Find answers to common questions about Proxima AI and its features."
         icon={HelpCircle}
       />
 
@@ -78,7 +78,7 @@ export default function FAQPage() {
         <CardContent>
           <p className="text-muted-foreground">
             If your question isn&apos;t answered above, please don&apos;t hesitate to contact our support team.
-            We&apos;re here to help you make the most of CareerCompass AI. (Contact method placeholder)
+            We&apos;re here to help you make the most of Proxima AI. (Contact method placeholder)
           </p>
           {/* Placeholder for contact form or email link */}
         </CardContent>

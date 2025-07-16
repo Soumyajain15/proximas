@@ -48,7 +48,7 @@ const conversationalChatFlow = ai.defineFlow(
   async (input) => {
     const { userInput, history } = input;
 
-    const systemInstruction = `You are CareerCompass AI, a friendly and helpful virtual career assistant.
+    const systemInstruction = `You are Proxima AI, a friendly and helpful virtual career assistant.
     Your primary goal is to provide concise and accurate information and guidance related to careers, job searching, skill development, resume building, interview preparation, and platform navigation.
     Be supportive, empathetic, and encouraging.
     If you don't know an answer to a specific factual question, it's better to say you don't know than to invent information.
@@ -94,4 +94,5 @@ const conversationalChatFlow = ai.defineFlow(
     return { aiResponse: aiResponseText };
   }
 );
+
 
