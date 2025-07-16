@@ -1,7 +1,7 @@
 # Proxima AI - Your Personal AI-Powered Career Coach
 
 <div align="center">
-  <img src="C:\Users\MiC Computer\Pictures\Screenshots" alt="Proxima AI Banner" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" data-ai-hint="futuristic abstract brain" />
+  <img src="" alt="Proxima AI Banner" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" data-ai-hint="futuristic abstract brain" />
 </div>
 
 <p align="center">
