@@ -1,4 +1,4 @@
-# **App Name**: CareerCompass AI
+# **App Name**: Proxima
 
 ## Core Features:
 
