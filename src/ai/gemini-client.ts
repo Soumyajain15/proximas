@@ -1,10 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Simple shared Gemini client for server-side usage
+// Shared Gemini client for server-side usage
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-  // Log once during module init; the UI will surface a friendlier error.
   console.error(
     '[Gemini] GEMINI_API_KEY is not set. Add it to your environment (.env, hosting env vars).'
   );
@@ -12,8 +11,8 @@ if (!apiKey) {
 
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
-// Default model for Proxima conversational/chat use-cases.
-const DEFAULT_MODEL = 'gemini-2.0-flash';
+// Default Gemini model for Proxima conversational/chat use-cases.
+const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 
 export type GeminiHistoryMessage = {
   role: 'user' | 'model';
@@ -57,7 +56,6 @@ export async function generateChatCompletion(options: {
     generationConfig: {
       temperature,
     },
-    // Safety config can be expanded as needed; keeping defaults for now.
   });
 
   const text = result.response.text();
@@ -67,5 +65,4 @@ export async function generateChatCompletion(options: {
 
   return text;
 }
-
 
